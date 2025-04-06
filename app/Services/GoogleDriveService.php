@@ -4,6 +4,8 @@ namespace App\Services;
 
 use Google_Client;
 use Google_Service_Drive;
+use Google_Service_Drive_DriveFile;
+use Google_Service_Drive_Permission;
 use Illuminate\Support\Facades\Storage;
 
 class GoogleDriveService
@@ -31,18 +33,19 @@ class GoogleDriveService
         $this->service = new Google_Service_Drive($this->client);
     }
 
+    /**
+     * Uploads a file to Google Drive
+     */
     public function uploadFile($filePath, $fileName, $folderId = null)
     {
         try {
-            $file = new \Google_Service_Drive_DriveFile();
+            $file = new Google_Service_Drive_DriveFile();
             $file->setName($fileName);
-            
-            // If folder ID is provided, set the parent
+
             if ($folderId) {
                 $file->setParents([$folderId]);
             }
 
-            // Perform the file upload
             $result = $this->service->files->create(
                 $file,
                 [
@@ -52,17 +55,49 @@ class GoogleDriveService
                 ]
             );
 
-            // Generate a shareable link
             $fileId = $result->getId();
-            $permission = new \Google_Service_Drive_Permission();
+
+            // Set permission to "anyone with the link"
+            $permission = new Google_Service_Drive_Permission();
             $permission->setType('anyone');
             $permission->setRole('reader');
             $this->service->permissions->create($fileId, $permission);
 
             return "https://drive.google.com/file/d/{$fileId}/view";
         } catch (\Exception $e) {
-            // Log the error
             \Log::error('Google Drive Upload Error: ' . $e->getMessage());
+            throw $e;
+        }
+    }
+
+    /**
+     * Creates a folder in Google Drive, optionally under a parent folder
+     */
+    public function createFolder($folderName, $parentId = null)
+    {
+        try {
+            $folderMetadata = new Google_Service_Drive_DriveFile([
+                'name' => $folderName,
+                'mimeType' => 'application/vnd.google-apps.folder',
+            ]);
+
+            if ($parentId) {
+                $folderMetadata->setParents([$parentId]);
+            }
+
+            $folder = $this->service->files->create($folderMetadata, [
+                'fields' => 'id',
+            ]);
+
+            // Set permission to "anyone with the link"
+            $permission = new Google_Service_Drive_Permission();
+            $permission->setType('anyone');
+            $permission->setRole('reader');
+            $this->service->permissions->create($folder->id, $permission);
+
+            return $folder->id;
+        } catch (\Exception $e) {
+            \Log::error('Google Drive Folder Creation Error: ' . $e->getMessage());
             throw $e;
         }
     }

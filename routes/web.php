@@ -8,6 +8,19 @@ use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\GoogleDriveController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\SubtopicController;
+use App\Http\Controllers\FolderController;
+
+Route::post('/folders/{id}/upload-area', [FolderController::class, 'uploadToArea'])->name('folders.uploadToArea');
+
+Route::get('/folders/{id}', [FolderController::class, 'show'])->name('folders.show');
+Route::post('/folders/{id}/upload', [FolderController::class, 'upload'])->name('folders.upload');
+
+Route::delete('/folders/{folder}', [FolderController::class, 'destroy'])->name('folders.destroy');
+Route::delete('/folders/area/{subtopic}/{area}', [FolderController::class, 'destroyByArea'])->name('folders.destroyByArea');
+
+
+
+Route::post('/subtopics/{id}/generate-folders', [SubtopicController::class, 'generateFolders'])->name('subtopics.generateFolders');
 
 Route::get('/dcc/dashboard', [DocumentController::class, 'dccDashboard'])->name('dcc.dashboard');
 

@@ -17,4 +17,11 @@ class Subtopic extends Model
         // Each subtopic belongs to a department
         return $this->belongsTo(Department::class);
     }
+    
+    
+    public function folders()
+{
+    return $this->hasMany(Folder::class);
+}
+
 }
