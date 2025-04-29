@@ -6,7 +6,7 @@ use Google_Client;
 use Google_Service_Drive;
 use Google_Service_Drive_DriveFile;
 use Google_Service_Drive_Permission;
-use Illuminate\Support\Facades\Storage;
+use App\Models\Folder;
 
 class GoogleDriveService
 {
@@ -16,26 +16,19 @@ class GoogleDriveService
     public function __construct()
     {
         $this->client = new Google_Client();
-        
-        // Path to your service account key
+
         $credentialsPath = storage_path('app/google-drive/API.json');
-        
-        // Check if credentials file exists
+
         if (!file_exists($credentialsPath)) {
             throw new \Exception("Google Drive credentials file not found. Please upload your service account JSON.");
         }
 
-        // Configure the client
         $this->client->setAuthConfig($credentialsPath);
         $this->client->addScope(Google_Service_Drive::DRIVE);
-        
-        // Create Drive service
+
         $this->service = new Google_Service_Drive($this->client);
     }
 
-    /**
-     * Uploads a file to Google Drive
-     */
     public function uploadFile($filePath, $fileName, $folderId = null)
     {
         try {
@@ -70,9 +63,6 @@ class GoogleDriveService
         }
     }
 
-    /**
-     * Creates a folder in Google Drive, optionally under a parent folder
-     */
     public function createFolder($folderName, $parentId = null)
     {
         try {
@@ -89,7 +79,6 @@ class GoogleDriveService
                 'fields' => 'id',
             ]);
 
-            // Set permission to "anyone with the link"
             $permission = new Google_Service_Drive_Permission();
             $permission->setType('anyone');
             $permission->setRole('reader');
@@ -98,6 +87,23 @@ class GoogleDriveService
             return $folder->id;
         } catch (\Exception $e) {
             \Log::error('Google Drive Folder Creation Error: ' . $e->getMessage());
+            throw $e;
+        }
+    }
+
+    public function createAndStoreFolder($subtopicId, $folderName, $parentId = null)
+    {
+        try {
+            $driveId = $this->createFolder($folderName, $parentId);
+
+            return Folder::create([
+                'subtopic_id' => $subtopicId,
+                'name'        => $folderName,
+                'path'        => null,
+                'drive_id'    => $driveId,
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('createAndStoreFolder Error: ' . $e->getMessage());
             throw $e;
         }
     }

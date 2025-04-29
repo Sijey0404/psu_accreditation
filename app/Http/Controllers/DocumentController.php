@@ -3,233 +3,264 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Document;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Document;
+use App\Models\Subtopic;
+use App\Models\Folder;
 use Illuminate\Support\Facades\Storage;
 use App\Services\GoogleDriveService;
-use Illuminate\Support\Facades\File;
+use App\Models\User; // ✅ Added to fetch user names
 
 class DocumentController extends Controller
 {
-    protected $googleDriveService;
-
-    public function __construct(GoogleDriveService $googleDriveService)
-    {
-        $this->googleDriveService = $googleDriveService;
-    }
-
-    // 📂 Upload Documents (Handled by DCC & Area Chairs)
-    public function upload(Request $request)
+    public function store(Request $request)
     {
         $request->validate([
+            'subtopic_id' => 'required|exists:subtopics,id',
+            'folder_id' => 'required|exists:folders,id',
             'title' => 'required|string|max:255',
-            'category' => 'required|string',
-            'file' => 'required|mimes:pdf,docx,xlsx|max:10240'
+            'category' => 'nullable|string|max:255',
+            'original_link' => 'nullable|url',
+            'file' => 'required|file|max:10240', // 10MB max
         ]);
 
+        $user = Auth::user();
         $file = $request->file('file');
-        $fileName = time() . '_' . $file->getClientOriginalName();
-        $filePath = 'pending_documents/' . $fileName;
+        $filename = time() . '_' . $file->getClientOriginalName();
+        $path = $file->storeAs('documents', $filename, 'public');
 
-        // Store file locally (Pending state)
-        Storage::disk('local')->put($filePath, file_get_contents($file));
+        $folder = Folder::findOrFail($request->folder_id);
+        $googleDriveId = $folder->drive_id ?? null;
 
-        // Save document details in MySQL
-        $document = Document::create([
+        $status = in_array($user->role, ['QA', 'Accreditor']) ? 'approved' : 'pending';
+
+        Document::create([
+            'user_id' => $user->id,
+            'uploaded_by' => $user->id,
+            'subtopic_id' => $request->subtopic_id,
+            'folder_id' => $request->folder_id,
             'title' => $request->title,
-            'file_path' => $filePath,
             'category' => $request->category,
-            'status' => 'pending', // Mark as pending
-            'uploaded_by' => Auth::id(),
+            'original_link' => $request->original_link,
+            'file_path' => $path,
             'file_type' => $file->getClientOriginalExtension(),
+            'status' => $status,
+            'drive_id' => $googleDriveId,
         ]);
 
-        return redirect()->back()->with('success', 'Document uploaded successfully, pending approval.');
-    }
-
-    // ✅ Approve Document & Upload to Google Drive
-    public function approve($id)
-    {
-        $document = Document::findOrFail($id);
-
-        // Ensure file exists in local storage
-        $localFilePath = storage_path('app/' . $document->file_path);
-        if (!file_exists($localFilePath)) {
-            return redirect()->back()->with('error', 'File not found.');
-        }
-
-        // Get Google Drive folder ID based on category
-        $folderId = $this->getFolderIdByCategory($document->category);
-
-        // Upload file to Google Drive
-        $driveLink = $this->googleDriveService->uploadFile($localFilePath, $document->title, $folderId);
-
-        // Update document status & store Google Drive link
-        $document->update([
-            'status' => 'approved',
-            'original_link' => $driveLink,
-            'file_path' => $driveLink, // Store drive link as file path
-            'approved_at' => now(),
-            'approved_by' => Auth::id(),
-        ]);
-
-        // Optional: Delete local file after Google Drive upload
-        if (Storage::disk('local')->fileExists($document->file_path)) {
-            Storage::disk('local')->delete($document->file_path);
-        }
-
-        return redirect()->back()->with('success', 'Document approved and uploaded to Google Drive.');
-    }
-
-    // ❌ Reject Document
-    public function reject(Request $request, $id)
-    {
-        $document = Document::findOrFail($id);
-    
-        $document->update([
-            'status' => 'rejected',
-            'rejection_reason' => $request->input('reason') // Updated to match the form field name
-        ]);
-    
-        // Optional: Delete local file for rejected documents
-        if (Storage::disk('local')->fileExists($document->file_path)) {
-            Storage::disk('local')->delete($document->file_path);
-        }
-    
-        return redirect()->back()->with('success', 'Document rejected successfully.');
-    }
-
-    // 📌 Show Pending Documents (QA Review)
-    public function showPending()
-    {
-        $pendingDocuments = Document::where('status', 'pending')->get();
-        return view('documents.pending', compact('pendingDocuments'));
-    }
-
-    // 📌 Show Approved Documents
-    public function showApprovedDocuments()
-    {
-        $documents = Document::where('status', 'approved')->get();
-        return view('documents.approved', compact('documents'));
-    }
-
-    // 🔗 Generate Google Drive Upload Link (Manual Upload)
-    public function generateGoogleDriveLink($id)
-    {
-        $document = Document::findOrFail($id);
-        $googleDriveFolder = "https://drive.google.com/drive/folders/1c_wtPut9V6LXv1745hrlqv8RWYzsUh8s";
-        return redirect($googleDriveFolder)->with('success', 'Upload the document manually to Google Drive.');
-    }
-
-    public function dccUpload()
-    {
-        return view('documents.upload');
-    }
-
-    // 🔍 Get Google Drive Folder ID Based on Category
-    private function getFolderIdByCategory($category)
-    {
-        $folders = [
-            'Area 1' => '1wfCmfOFFEbnLZqybQg6Q4NXMRyiK4CgM',
-            'Area 2' => '15d2i4kRajhshkQAV7ethWH8BUiFROenQ',
-            'Area 3' => '1JDhsiwB1TEyyOkEkJMc6nWvogy85aXgg'
-        ];
-
-        return $folders[$category] ?? '1c_wtPut9V6LXv1745hrlqv8RWYzsUh8s';
-    }
-
-    // 📄 Index of Approved Documents
-    public function index()
-    {
-        $documents = Document::where('status', 'approved')->get();
-        return view('documents.index', compact('documents'));
-    }
-
-    // 👁️ View Document
-    public function view($id)
-    {
-        $document = Document::findOrFail($id);
-        
-        // Ensure the document is approved
-        if ($document->status !== 'approved') {
-            abort(403, 'Unauthorized access');
-        }
-
-        // If it's a Google Drive link, redirect
-        if (strpos($document->file_path, 'https://drive.google.com') !== false) {
-            return redirect($document->file_path);
-        }
-
-        // Check if local file exists
-        $fullPath = storage_path('app/' . $document->file_path);
-        
-        if (!File::exists($fullPath)) {
-            abort(404, 'File not found');
-        }
-
-        // Return the document file
-        return response()->file($fullPath);
-    }
-
-    // 📥 Download Document
-    public function download($id)
-    {
-        $document = Document::findOrFail($id);
-        
-        // Ensure the document is approved
-        if ($document->status !== 'approved') {
-            abort(403, 'Unauthorized access');
-        }
-
-        // If it's a Google Drive link, redirect to download
-        if (strpos($document->file_path, 'https://drive.google.com') !== false) {
-            return redirect($document->file_path);
-        }
-
-        // Check if local file exists
-        $fullPath = storage_path('app/' . $document->file_path);
-        
-        if (!File::exists($fullPath)) {
-            abort(404, 'File not found');
-        }
-
-        // Return the document for download
-        return response()->download($fullPath, $document->title);
-    }
-
-    public function showRejectedDocuments()
-    {
-        $rejectedDocuments = Document::where('status', 'rejected')->get();
-        return view('document-repository.rejected', compact('rejectedDocuments'));
-    }
-
-    public function rejectedDocuments()
-    {
-        $rejectedDocuments = Document::where('status', 'rejected')->get();
-        return view('documents.rejected', compact('rejectedDocuments'));
-    }
-
-    // New method to handle the pending approvals view shown in your blade template
-    public function pendingApprovals()
-    {
-        $pendingDocuments = Document::where('status', 'pending')
-            ->with('user')
-            ->get();
-            
-        return view('documents.pending-approvals', compact('pendingDocuments'));
+        return back()->with('success', 'Document uploaded successfully.');
     }
 
     public function pending()
+    {
+        $user = auth()->user();
+
+        if ($user->role !== 'QA') {
+            return redirect()->back()->with('error', 'Unauthorized access.');
+        }
+
+        $documents = Document::where('status', 'pending')
+            ->with(['uploader', 'subtopic'])
+            ->latest()
+            ->get();
+
+        return view('documents.pending', compact('documents'));
+    }
+
+    public function approve($id)
+    {
+        $user = Auth::user();
+        if (!in_array($user->role, ['QA', 'Accreditor'])) {
+            return back()->with('error', 'Unauthorized access.');
+        }
+
+        $document = Document::findOrFail($id);
+
+        $document->update([
+            'status' => 'approved',
+            'approved_by' => $user->id,
+            'approved_at' => now(),
+        ]);
+
+        try {
+            if ($document->folder_id) {
+                $folder = Folder::findOrFail($document->folder_id);
+
+                if ($folder && $folder->drive_id) {
+                    $driveService = new GoogleDriveService();
+                    $filePath = storage_path('app/public/' . $document->file_path);
+                    $fileName = $document->title . '.' . $document->file_type;
+
+                    $driveLink = $driveService->uploadFile($filePath, $fileName, $folder->drive_id);
+
+                    $document->update([
+                        'drive_link' => $driveLink,
+                    ]);
+                }
+            }
+        } catch (\Exception $e) {
+            \Log::error('Google Drive Upload Error: ' . $e->getMessage());
+            return back()->with('error', 'Document approved but failed to upload to Google Drive.');
+        }
+
+        return back()->with('success', 'Document approved and uploaded to Google Drive.');
+    }
+
+    public function reject(Request $request, $id)
+    {
+        $request->validate([]);
+
+        $user = Auth::user();
+        if (!in_array($user->role, ['QA', 'Accreditor'])) {
+            return back()->with('error', 'Unauthorized access.');
+        }
+
+        $document = Document::findOrFail($id);
+        $document->update([
+            'status' => 'rejected',
+            'approved_by' => $user->id,
+            'approved_at' => now(),
+        ]);
+
+        return back()->with('success', 'Document rejected.');
+    }
+
+    // ✅ Updated this function to use filtering like approved documents
+    public function rejected(Request $request)
+    {
+        $user = auth()->user();
+
+        if ($user->role !== 'QA') {
+            return redirect()->back()->with('error', 'Unauthorized access.');
+        }
+
+        $query = Document::with('uploader', 'subtopic')
+            ->where('status', 'rejected');
+
+        if ($request->has('search') && $search = $request->get('search')) {
+            $query->where(function($q) use ($search) {
+                $q->whereHas('uploader', function ($q) use ($search) {
+                    $q->where('name', 'like', '%' . $search . '%');
+                })
+                ->orWhere('category', 'like', '%' . $search . '%');
+            });
+        }
+
+        if ($request->has('file_type') && $file_type = $request->get('file_type')) {
+            $query->where('file_type', $file_type);
+        }
+
+        if ($request->has('approved_at') && $approved_at = $request->get('approved_at')) {
+            $query->whereDate('approved_at', $approved_at);
+        }
+
+        $documents = $query->latest()->get();
+
+        return view('documents.rejected', compact('documents'));
+    }
+
+    public function download($id)
+    {
+        $document = Document::findOrFail($id);
+        return Storage::disk('public')->download($document->file_path);
+    }
+
+    public function rejection()
+    {
+        return $this->hasOne(Rejection::class);
+    }
+
+    public function getDocumentsByFolder($folderId)
+    {
+        $documents = Document::where('folder_id', $folderId)
+            ->with(['rejection', 'uploader'])
+            ->get()
+            ->map(function ($doc) {
+                return [
+                    'id' => $doc->id,
+                    'title' => $doc->title,
+                    'file_type' => $doc->file_type,
+                    'status' => $doc->status,
+                    'file_url' => Storage::disk('public')->url($doc->file_path),
+                    'uploaded_by' => optional($doc->uploader)->name ?? 'Unknown',
+                    'rejection_reason' => $doc->rejection->reason ?? null,
+                ];
+            });
+
+        return response()->json($documents);
+    }
+
+    public function getByFolder($folderId)
+    {
+        $documents = Document::where('folder_id', $folderId)
+            ->with('uploader')
+            ->get()
+            ->map(function ($doc) {
+                return [
+                    'title' => $doc->title,
+                    'file_type' => $doc->file_type,
+                    'status' => $doc->status,
+                    'rejection_reason' => $doc->rejection_reason,
+                    'file_url' => asset('storage/' . $doc->file_path),
+                    'uploaded_by' => optional($doc->uploader)->name ?? 'Unknown',
+                ];
+            });
+
+        return response()->json($documents);
+    }
+
+    public function showApprovedDocuments(Request $request)
+    {
+        $query = Document::with('uploader')
+            ->where('status', 'approved');
+
+        if ($request->has('search') && $search = $request->get('search')) {
+            $query->whereHas('uploader', function ($query) use ($search) {
+                $query->where('name', 'like', '%' . $search . '%');
+            })
+            ->orWhere('category', 'like', '%' . $search . '%');
+        }
+
+        if ($request->has('file_type') && $file_type = $request->get('file_type')) {
+            $query->where('file_type', $file_type);
+        }
+
+        if ($request->has('approved_at') && $approved_at = $request->get('approved_at')) {
+            $query->whereDate('approved_at', $approved_at);
+        }
+
+        $documents = $query->get();
+
+        return view('documents.approved', compact('documents'));
+    }
+    public function showRejectedDocuments(Request $request)
 {
-    $documents = Document::where('status', 'pending')->get(); // Fetch pending documents
-    return view('your-view-name', compact('documents')); // Ensure correct view path
+    $query = Document::where('status', 'rejected');
+
+    // Apply search filter
+    if ($request->filled('search')) {
+        $search = $request->input('search');
+        $query->where(function($q) use ($search) {
+            $q->where('title', 'like', "%$search%")
+              ->orWhereHas('uploader', function($q2) use ($search) {
+                  $q2->where('name', 'like', "%$search%");
+              })
+              ->orWhere('category', 'like', "%$search%");
+        });
+    }
+
+    // Apply file type filter
+    if ($request->filled('file_type')) {
+        $query->where('file_type', $request->input('file_type'));
+    }
+
+    // Apply created_at filter
+    if ($request->filled('created_at')) {
+        $query->whereDate('created_at', $request->input('created_at'));
+    }
+
+    $documents = $query->with('uploader')->latest()->get();
+
+    return view('documents.rejected', compact('documents'));
 }
-
-public function dccDashboard()
-{
-    $documents = Document::where('status', 'pending')->get(); // Fetch pending documents
-    return view('dashboard.dcc', compact('documents'));
-}
-
-
 }

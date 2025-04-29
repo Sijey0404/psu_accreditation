@@ -13,6 +13,7 @@ class Department extends Model
 
     protected $fillable = ['name', 'slug'];
 
+
     protected static function boot()
     {
         parent::boot();

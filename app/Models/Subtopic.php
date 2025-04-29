@@ -24,4 +24,15 @@ class Subtopic extends Model
     return $this->hasMany(Folder::class);
 }
 
+public function documents()
+{
+    return $this->hasMany(Document::class);
+}
+
+
+
+
+
+
+
 }

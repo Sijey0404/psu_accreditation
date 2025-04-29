@@ -1,100 +1,66 @@
 <x-app-layout>
-    <div class="p-6 bg-white shadow-md rounded-lg">
-        <h2 class="text-xl font-bold mb-4">📂 Pending Approvals</h2>
+    <x-slot name="header">
+        <h2 class="font-semibold text-2xl text-blue-900 leading-tight">
+            Pending Document Approvals
+        </h2>
+    </x-slot>
 
+    <div class="py-10 px-6 bg-blue-50 min-h-screen">
         @if(session('success'))
-            <div class="bg-green-500 text-white p-2 mb-4 rounded">{{ session('success') }}</div>
+            <div class="bg-green-100 text-green-800 p-4 rounded-lg shadow mb-6">
+                {{ session('success') }}
+            </div>
         @endif
 
-        @if(session('error'))
-            <div class="bg-red-500 text-white p-2 mb-4 rounded">{{ session('error') }}</div>
-        @endif
-
-        @if($pendingDocuments->isEmpty())
-            <p class="text-gray-500">No pending documents for approval.</p>
+        @if($documents->isEmpty())
+            <div class="text-center mt-20">
+                <p class="text-blue-700 text-lg">No pending documents to review.</p>
+            </div>
         @else
-            <table class="w-full border-collapse border border-gray-300">
-                <thead>
-                    <tr class="bg-gray-200">
-                        <th class="border p-2">Title</th>
-                        <th class="border p-2">Category</th>
-                        <th class="border p-2">Uploaded By</th>
-                        <th class="border p-2">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($pendingDocuments as $document)
-                        <tr>
-                            <td class="border p-2">{{ $document->title }}</td>
-                            <td class="border p-2">{{ $document->category }}</td>
-                            <td class="border p-2">{{ $document->user->name ?? 'Unknown' }}</td>
-                            <td class="border p-2">
-                                <!-- Approve Button -->
-                                <form action="{{ route('document.approve', $document->id) }}" method="POST" class="inline">
+            <div class="grid gap-6">
+                @foreach($documents as $doc)
+                    <div class="bg-white border border-blue-200 rounded-xl p-6 shadow-sm hover:shadow-md transition duration-300">
+                        <div class="flex justify-between items-start flex-col md:flex-row gap-4">
+                            <div class="space-y-2">
+                                <h3 class="text-xl font-bold text-blue-800">{{ $doc->title }}</h3>
+                                <p class="text-sm text-blue-600">
+                                    Uploaded by: <span class="font-medium">{{ $doc->uploader->name ?? 'Unknown Uploader' }}</span> |
+                                    Subtopic: <span class="font-medium">{{ $doc->subtopic->name ?? 'Unknown Subtopic' }}</span>
+                                </p>
+                                <p class="text-sm text-blue-500">
+                                    Type: <span class="font-medium">{{ $doc->file_type }}</span> |
+                                    Status: <span class="text-yellow-500 font-semibold">{{ ucfirst($doc->status) }}</span>
+                                </p>
+                            </div>
+
+                            <div class="flex gap-3 mt-4 md:mt-0">
+                                <a href="{{ asset('storage/' . $doc->file_path) }}" target="_blank"
+                                   class="inline-flex items-center justify-center bg-blue-100 text-blue-700 px-4 py-2 rounded-lg text-sm font-semibold hover:bg-blue-200 transition">
+                                    View
+                                </a>
+
+                                {{-- Approve Form --}}
+                                <form action="{{ route('documents.approve', $doc->id) }}" method="POST" onsubmit="return confirm('Approve this document?')">
                                     @csrf
-                                    <button type="submit" class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600">✅ Approve</button>
+                                    <button type="submit"
+                                        class="inline-flex items-center justify-center bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-blue-700 transition">
+                                        Approve
+                                    </button>
                                 </form>
 
-                                <!-- Reject Button (Using Tailwind Modal) -->
-                                <button type="button" 
-                                        class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
-                                        onclick="openRejectModal('{{ $document->id }}')">
-                                    ❌ Reject
-                                </button>
-                            </td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-
-            <!-- Tailwind-based Modals -->
-            @foreach($pendingDocuments as $document)
-                <div id="rejectModal{{ $document->id }}" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full" id="modal">
-                    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-                        <div class="mt-3 text-center">
-                            <h3 class="text-lg leading-6 font-medium text-gray-900">Reject Document</h3>
-                            <div class="mt-2 px-7 py-3">
-                                <form action="{{ route('document.reject', $document->id) }}" method="POST">
+                                {{-- Reject Form --}}
+                                <form action="{{ route('documents.reject', $doc->id) }}" method="POST" onsubmit="return confirm('Reject this document?')">
                                     @csrf
-                                    <div class="mb-4">
-                                        <label for="rejection_reason" class="block text-gray-700 text-sm font-bold mb-2 text-left">Rejection Reason:</label>
-                                        <textarea 
-                                            name="rejection_reason" 
-                                            id="rejection_reason" 
-                                            rows="3" 
-                                            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                                            required
-                                        ></textarea>
-                                    </div>
-                                    <div class="flex justify-between mt-4">
-                                        <button 
-                                            type="button" 
-                                            onclick="closeRejectModal('{{ $document->id }}')"
-                                            class="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400">
-                                            Cancel
-                                        </button>
-                                        <button 
-                                            type="submit" 
-                                            class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">
-                                            Confirm Reject
-                                        </button>
-                                    </div>
+                                    <button type="submit"
+                                        class="inline-flex items-center justify-center bg-red-500 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-red-600 transition">
+                                        Reject
+                                    </button>
                                 </form>
                             </div>
                         </div>
                     </div>
-                </div>
-            @endforeach
+                @endforeach
+            </div>
         @endif
     </div>
-
-    <script>
-        function openRejectModal(documentId) {
-            document.getElementById('rejectModal' + documentId).classList.remove('hidden');
-        }
-        
-        function closeRejectModal(documentId) {
-            document.getElementById('rejectModal' + documentId).classList.add('hidden');
-        }
-    </script>
 </x-app-layout>

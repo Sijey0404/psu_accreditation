@@ -1,139 +1,108 @@
 <x-app-layout>
+    <div class="container mx-auto px-4 py-8 bg-gray-50 rounded-lg shadow-lg">
+        
 
+        <!-- Search Form -->
+        <form method="GET" action="{{ route('documents.approved') }}" class="mb-6 flex items-center space-x-4">
+            <div class="flex-1">
+                <input type="text" name="search" value="{{ request('search') }}" placeholder="Search by User Name or Category"
+                    class="border border-gray-300 p-3 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700 placeholder-gray-400">
+            </div>
+            <button type="submit" class="bg-blue-500 text-white px-6 py-3 rounded-lg focus:outline-none hover:bg-blue-600 transition duration-200 ease-in-out">
+                Search
+            </button>
+        </form>
 
-    <div class="flex">
-        <!-- Include Sidebar Component -->
-    <div class="container mx-auto px-4 py-6">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            @foreach ($documents->where('status', 'approved') as $document)
-                <div class="bg-white shadow-md rounded-lg overflow-hidden">
-                    <div class="p-4">
-                        <h3 class="font-bold text-lg mb-2">{{ $document->title }}</h3>
-                        <p class="text-gray-600 mb-4">
-                            Category: {{ $document->category }}
-                            @if($document->file_type)
-                                <span class="ml-2 text-sm text-gray-500">({{ strtoupper($document->file_type) }})</span>
-                            @endif
-                        </p>
-                        
-                        <div class="flex space-x-2">
-                            @if (strpos($document->file_path, 'https://drive.google.com') !== false)
-                                <a 
-                                    href="{{ $document->file_path }}" 
-                                    target="_blank"
-                                    class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition flex items-center"
-                                >
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                                        <polyline points="14 2 14 8 20 8"></polyline>
-                                        <line x1="16" y1="13" x2="8" y2="13"></line>
-                                        <line x1="16" y1="17" x2="8" y2="17"></line>
-                                        <polyline points="10 9 9 9 8 9"></polyline>
-                                    </svg>
-                                    View on Google Drive
-                                </a>
-                                <a 
-                                    href="{{ $document->file_path }}" 
-                                    target="_blank"
-                                    class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition flex items-center"
-                                >
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                                        <polyline points="7 10 12 15 17 10"></polyline>
-                                        <line x1="12" y1="15" x2="12" y2="3"></line>
-                                    </svg>
-                                    Download
-                                </a>
-                            @else
-                                <button 
-                                    onclick="openDocumentModal({{ $document->id }})"
-                                    class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition flex items-center"
-                                >
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                                        <polyline points="14 2 14 8 20 8"></polyline>
-                                        <line x1="16" y1="13" x2="8" y2="13"></line>
-                                        <line x1="16" y1="17" x2="8" y2="17"></line>
-                                        <polyline points="10 9 9 9 8 9"></polyline>
-                                    </svg>
-                                    View Document
-                                </button>
-                                
-                                <a 
-                                    href="{{ route('documents.download', $document->id) }}"
-                                    class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition flex items-center"
-                                >
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                                        <polyline points="7 10 12 15 17 10"></polyline>
-                                        <line x1="12" y1="15" x2="12" y2="3"></line>
-                                    </svg>
-                                    Download
-                                </a>
-                            @endif
-                        </div>
+        <!-- Filter Button and Dropdown -->
+        <div class="relative inline-block mb-6">
+            <button class="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 focus:outline-none flex items-center space-x-2 transition duration-200 ease-in-out" id="filterBtn">
+                <i class="fas fa-filter"></i>
+                <span>Filter</span>
+            </button>
 
-                        <div class="mt-2 text-sm text-gray-500">
-                            @if($document->approved_at)
-                                Approved: {{ $document->approved_at->diffForHumans() }}
-                            @endif
-                        </div>
+            <!-- Dropdown -->
+            <div id="filterDropdown" class="absolute right-0 mt-2 bg-white shadow-lg rounded-lg w-60 hidden p-4 border border-gray-200">
+                <form method="GET" action="{{ route('documents.approved') }}">
+                    <div class="mb-4">
+                        <label for="file_type" class="block text-sm font-medium text-gray-700">File Type</label>
+                        <select name="file_type" id="file_type" class="mt-1 block w-full text-gray-700 border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">All</option>
+                            <option value="pdf" {{ request('file_type') == 'pdf' ? 'selected' : '' }}>PDF</option>
+                            <option value="docx" {{ request('file_type') == 'docx' ? 'selected' : '' }}>DOCX</option>
+                            <option value="xlsx" {{ request('file_type') == 'xlsx' ? 'selected' : '' }}>XLSX</option>
+                            <option value="txt" {{ request('file_type') == 'txt' ? 'selected' : '' }}>TXT</option>
+                        </select>
                     </div>
-                </div>
-            @endforeach
+
+                    <div class="mb-4">
+                        <label for="approved_at" class="block text-sm font-medium text-gray-700">Approved At</label>
+                        <input type="date" name="approved_at" id="approved_at" value="{{ request('approved_at') }}" class="mt-1 block w-full text-gray-700 border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+
+                    <div class="flex justify-between">
+                        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-lg focus:outline-none hover:bg-blue-600 transition duration-200 ease-in-out">
+                            Apply
+                        </button>
+                        <button type="button" onclick="clearFilters()" class="text-red-500 hover:text-red-600">
+                            Clear
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Documents Table -->
+        <div class="overflow-x-auto bg-white shadow-lg rounded-lg">
+            <table class="min-w-full table-auto text-sm text-gray-700">
+                <thead class="bg-blue-100 text-blue-700">
+                    <tr>
+                        <th class="py-3 px-6 text-left">Title</th>
+                        <th class="py-3 px-6 text-left">Category</th>
+                        <th class="py-3 px-6 text-left">Uploaded By</th>
+                        <th class="py-3 px-6 text-left">File Type</th>
+                        <th class="py-3 px-6 text-left">Approved At</th>
+                        <th class="py-3 px-6 text-left">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($documents as $document)
+                        <tr class="hover:bg-blue-50">
+                            <td class="py-3 px-6 border-b">{{ $document->title }}</td>
+                            <td class="py-3 px-6 border-b">{{ $document->category ?? 'N/A' }}</td>
+                            <td class="py-3 px-6 border-b">{{ $document->uploader->name ?? 'Unknown User' }}</td>
+                            <td class="py-3 px-6 border-b">{{ strtoupper($document->file_type) }}</td>
+                            <td class="py-3 px-6 border-b">
+                                {{ $document->approved_at ? \Carbon\Carbon::parse($document->approved_at)->format('Y-m-d H:i') : 'N/A' }}
+                            </td>
+                            <td class="py-3 px-6 border-b">
+                                <a href="{{ asset('storage/' . $document->file_path) }}" target="_blank" class="text-blue-500 hover:underline">
+                                    View File
+                                </a>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="6" class="py-4 px-6 text-center text-gray-500">
+                                No approved documents found.
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
     </div>
 
-    <!-- Document Modal -->
-    <div 
-        id="documentModal" 
-        class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center"
-    >
-        <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
-            <div class="flex justify-between items-center p-4 border-b">
-                <h2 id="modalDocumentTitle" class="text-xl font-bold">Document Viewer</h2>
-                <button 
-                    onclick="closeDocumentModal()"
-                    class="text-gray-600 hover:text-gray-900"
-                >
-                    &times;
-                </button>
-            </div>
-            
-            <div id="modalDocumentContent" class="p-4 overflow-auto">
-                <!-- Document content will be loaded here -->
-                <iframe 
-                    id="documentFrame" 
-                    class="w-full h-[600px]" 
-                    src=""
-                ></iframe>
-            </div>
-        </div>
-    </div>
-
-    @push('scripts')
     <script>
-        function openDocumentModal(documentId) {
-            const modal = document.getElementById('documentModal');
-            const iframe = document.getElementById('documentFrame');
-            const titleElement = document.getElementById('modalDocumentTitle');
+        // Toggle the dropdown visibility when clicking the filter button
+        document.getElementById('filterBtn').addEventListener('click', function() {
+            document.getElementById('filterDropdown').classList.toggle('hidden');
+        });
 
-            // Set the iframe source to the document view route
-            iframe.src = `/documents/${documentId}/view`;
-            
-            // You might want to fetch the document title via AJAX and set it here
-            // titleElement.textContent = documentTitle;
-
-            modal.classList.remove('hidden');
-        }
-
-        function closeDocumentModal() {
-            const modal = document.getElementById('documentModal');
-            const iframe = document.getElementById('documentFrame');
-            
-            iframe.src = ''; // Clear the iframe source
-            modal.classList.add('hidden');
+        // Clear all filter inputs
+        function clearFilters() {
+            document.getElementById('file_type').value = '';
+            document.getElementById('approved_at').value = '';
+            document.querySelector('form').submit();
         }
     </script>
-    @endpush
 </x-app-layout>

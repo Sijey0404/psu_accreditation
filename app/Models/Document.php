@@ -10,17 +10,54 @@ class Document extends Model
     use HasFactory;
 
     protected $fillable = [
+        'subtopic_id',
         'title',
         'file_path',
         'category',
+        'original_link',
         'status',
+        'rejection_reason',
         'uploaded_by',
-        'folder_id' // ✅ Add this to make folder association fillable
+        'folder_id',
+        'file_type',
+        'approved_at',
+        'approved_by',
+        'drive_id',
     ];
 
-    // ✅ Optional: Define relationship to Folder model
+    /**
+     * Relationships
+     */
+
+    // A document belongs to a folder
     public function folder()
     {
         return $this->belongsTo(Folder::class);
     }
+
+    // A document belongs to a subtopic
+    public function subtopic()
+    {
+        return $this->belongsTo(Subtopic::class);
+    }
+
+    // A document was uploaded by a user
+    public function uploader()
+    {
+    return $this->belongsTo(User::class, 'uploaded_by');
+    }
+    // A document can be approved by a user (QA/Accreditor)
+    public function approver()
+    {
+        return $this->belongsTo(User::class, 'approved_by');
+    }
+    protected $table = 'documents'; // ✅ Your actual table name
+
+    public function user()
+{
+    return $this->belongsTo(User::class);
+}
+
+
+
 }

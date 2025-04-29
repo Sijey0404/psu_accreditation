@@ -1,17 +1,48 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            🎓 Area Chair Dashboard
-        </h2>
-    </x-slot>
+    <div class="bg-gradient-to-br from-blue-50 to-white min-h-screen py-10">
+        <div class="max-w-7xl mx-auto px-6 sm:px-10">
+            <div class="mb-10">
+                <h1 class="text-4xl font-extrabold text-blue-900 mb-2">🎓 PSU-SCC Accreditation Portal</h1>
+                <p class="text-lg text-gray-600">
+                    Welcome, <span class="font-semibold text-blue-700">Area Chair</span>! You're entrusted with leading your area’s accreditation efforts.
+                </p>
+            </div>
 
-    <div class="flex h-screen">
-        <!-- Sidebar -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Accreditation Info -->
+                <div class="lg:col-span-2 bg-white shadow-md rounded-2xl p-8 border border-blue-100">
+                    <h2 class="text-2xl font-semibold text-blue-800 mb-4">🏛 About PSU-SCC Accreditation</h2>
+                    <p class="text-gray-700 leading-relaxed text-justify">
+                        Pangasinan State University – San Carlos Campus (PSU-SCC) is committed to excellence in education and institutional quality. 
+                        Through AACCUP accreditation, our university undergoes rigorous assessment in areas such as instruction, research, 
+                        and community involvement, ensuring compliance with national academic standards.
+                    </p>
+                </div>
 
-        <!-- Main Content -->
-        <div class="flex-1 p-6 ml-64">
-            <h3 class="text-lg font-bold">Welcome, Area Chair!</h3>
-            <p class="text-gray-600">Upload area-specific documents and manage area members.</p>
+                <!-- Quick Role Overview -->
+                <div class="bg-blue-50 shadow-md rounded-2xl p-6 border border-blue-100">
+                    <h3 class="text-xl font-semibold text-blue-700 mb-3">👤 Area Chair Responsibilities</h3>
+                    <ul class="list-disc list-inside text-gray-700 space-y-2">
+                        <li>Lead document preparation for your assigned area.</li>
+                        <li>Coordinate with Area Members and QA Officers.</li>
+                        <li>Review documents before submission.</li>
+                        <li>Ensure timely completion of tasks.</li>
+                        <li>Maintain quality and completeness of submissions.</li>
+                    </ul>
+                </div>
+
+                <!-- Guidelines -->
+                <div class="lg:col-span-3 bg-white shadow-md rounded-2xl p-8 border border-blue-100">
+                    <h2 class="text-2xl font-semibold text-blue-800 mb-4">📌 Submission Guidelines</h2>
+                    <ul class="space-y-3 text-gray-700 list-disc list-inside">
+                        <li>Verify documents submitted by Area Members for compliance and completeness.</li>
+                        <li>Use the provided document templates and follow formatting standards.</li>
+                        <li>Maintain communication with QA for feedback and revisions.</li>
+                        <li>Organize files by subtopics and upload only relevant evidence.</li>
+                        <li>Encourage members to meet internal deadlines to allow QA review time.</li>
+                    </ul>
+                </div>
+            </div>
         </div>
     </div>
 </x-app-layout>

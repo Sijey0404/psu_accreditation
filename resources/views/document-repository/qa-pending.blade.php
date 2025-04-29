@@ -1,68 +1,50 @@
 <x-app-layout>
-    <div class="p-6 bg-white shadow-md rounded-lg">
-        <h2 class="text-xl font-bold mb-4">📂 Pending Approvals</h2>
+    <x-slot name="header">
+        <h2 class="text-xl font-semibold leading-tight text-gray-800">
+            {{ __('Pending Approvals') }}
+        </h2>
+    </x-slot>
 
-        @if(session('success'))
-            <div class="bg-green-500 text-white p-2 mb-4 rounded">{{ session('success') }}</div>
-        @endif
+    <div class="py-6">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            @if (session('success'))
+                <div class="mb-4 text-green-600">
+                    {{ session('success') }}
+                </div>
+            @endif
 
-        @if($pendingDocuments->isEmpty())
-            <p class="text-gray-500">No pending documents for approval.</p>
-        @else
-            <table class="w-full border-collapse border border-gray-300">
-                <thead>
-                    <tr class="bg-gray-200">
-                        <th class="border p-2">Title</th>
-                        <th class="border p-2">Category</th>
-                        <th class="border p-2">Uploaded By</th>
-                        <th class="border p-2">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($pendingDocuments as $document)
-                        <tr>
-                            <td class="border p-2">{{ $document->title }}</td>
-                            <td class="border p-2">{{ $document->category }}</td>
-                            <td class="border p-2">{{ $document->user->name ?? 'Unknown' }}</td>
-                            <td class="border p-2">
-                                <!-- Approve Button -->
-                                <form action="{{ route('document.approve', $document->id) }}" method="POST" class="inline">
-                                    @csrf
-                                    @method('POST')
-                                    <button type="submit" class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600">✅ Approve</button>
-                                </form>
-
-                                <!-- Reject Button (Opens Modal) -->
-                                <button type="button" class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600" data-bs-toggle="modal" data-bs-target="#rejectModal{{ $document->id }}">
-                                    ❌ Reject
-                                </button>
-                            </td>
-                        </tr>
-
-                        <!-- Reject Modal -->
-                        <div class="modal fade" id="rejectModal{{ $document->id }}" tabindex="-1" aria-labelledby="rejectLabel" aria-hidden="true">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="rejectLabel">Reject Document</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <form action="{{ route('document.reject', $document->id) }}" method="POST">
-                                            @csrf
-                                            @method('POST')
-                                            <label for="reason" class="font-bold">Rejection Reason:</label>
-                                            <textarea name="reason" class="form-control border-gray-300 rounded mt-1" required></textarea>
-                                            <button type="submit" class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 mt-3">Confirm Reject</button>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                    @endforeach
-                </tbody>
-            </table>
-        @endif
+            @if ($pendingDocuments->isEmpty())
+                <div class="p-4 bg-white rounded shadow">
+                    <p class="text-gray-600">No pending documents at the moment.</p>
+                </div>
+            @else
+                <div class="overflow-hidden bg-white shadow-sm sm:rounded-lg">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Title</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Category</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Uploaded By</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date Uploaded</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            @foreach ($pendingDocuments as $document)
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $document->title }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $document->category ?? '—' }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $document->user->name }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $document->created_at->format('F j, Y') }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                        <a href="{{ route('documents.show', $document->id) }}" class="text-blue-600 hover:underline">View</a>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @endif
+        </div>
     </div>
 </x-app-layout>

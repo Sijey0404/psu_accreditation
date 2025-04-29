@@ -12,11 +12,9 @@ return new class extends Migration
     public function up()
 {
     Schema::table('documents', function (Blueprint $table) {
-        $table->unsignedBigInteger('folder_id')->nullable()->after('uploaded_by');
-        $table->foreign('folder_id')->references('id')->on('folders')->onDelete('cascade');
+        $table->foreignId('user_id')->nullable()->constrained()->onDelete('cascade');
     });
 }
-
 
     /**
      * Reverse the migrations.

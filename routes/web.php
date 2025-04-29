@@ -9,6 +9,61 @@ use App\Http\Controllers\GoogleDriveController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\SubtopicController;
 use App\Http\Controllers\FolderController;
+use App\Http\Controllers\QAController;
+use App\Http\Controllers\UserManagementController;
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/faculty-management', [UserManagementController::class, 'manageFaculty'])
+        ->name('faculty.management');
+    Route::post('/faculty-management', [UserManagementController::class, 'storeFaculty'])->name('faculty.store');
+    Route::get('/faculty-management/{user}/edit', [UserManagementController::class, 'edit'])->name('faculty.edit');
+    Route::put('/faculty-management/{user}', [UserManagementController::class, 'update'])->name('faculty.update');
+    Route::delete('/faculty-management/{user}', [UserManagementController::class, 'destroy'])->name('faculty.destroy');
+});
+
+
+Route::resource('users', UserManagementController::class);
+// User management routes
+Route::get('/user-management', [UserManagementController::class, 'index'])->name('user.management');
+Route::post('/user-management', [UserManagementController::class, 'store'])->name('user.store');
+Route::get('/user-management/{user}/edit', [UserManagementController::class, 'edit'])->name('user.edit');
+Route::put('/user-management/{user}', [UserManagementController::class, 'update'])->name('user.update');
+Route::delete('/user-management/{user}', [UserManagementController::class, 'destroy'])->name('user.destroy');
+
+
+// Faculty Management (for Area Chair)
+
+
+
+Route::get('/documents/pending', [DocumentController::class, 'pending'])->name('documents.pending');
+Route::post('/documents/approve/{id}', [DocumentController::class, 'approve'])->name('documents.approve');
+Route::post('/documents/reject/{id}', [DocumentController::class, 'reject'])->name('documents.reject');
+Route::get('/approved-documents', [DocumentController::class, 'showApprovedDocuments'])->name('documents.approved');
+Route::get('/documents/approved', [DocumentController::class, 'showApprovedDocuments'])->name('documents.approved');
+// routes/web.php
+
+Route::post('/documents/{id}/approve', [DocumentController::class, 'approve'])->name('documents.approve');
+Route::post('/documents/{id}/reject', [DocumentController::class, 'reject'])->name('documents.reject');
+Route::get('/documents/rejected', [DocumentController::class, 'showRejectedDocuments'])->name('documents.rejected');
+Route::get('documents/rejected', [DocumentController::class, 'showRejectedDocuments'])->name('documents.rejected');
+
+Route::middleware(['auth'])->group(function () {
+    Route::post('/documents/{id}/approve', [DocumentController::class, 'approve'])->name('documents.approve');
+    Route::post('/documents/{id}/reject', [DocumentController::class, 'reject'])->name('documents.reject');
+});
+
+
+
+Route::get('/documents/folder/{folder}', [DocumentController::class, 'getByFolder']);
+Route::get('/folders/{id}/documents', [FolderController::class, 'getDocuments']);
+
+Route::get('/documents/folder/{folderId}', [DocumentController::class, 'getDocumentsByFolder']);
+
+Route::post('/documents/{document}/approve', [DocumentController::class, 'approve'])->name('documents.approve');
+Route::post('/documents/{document}/reject', [DocumentController::class, 'reject'])->name('documents.reject');
+
+
+Route::post('/folders', [FolderController::class, 'store'])->name('folders.store');
 
 Route::post('/folders/{id}/upload-area', [FolderController::class, 'uploadToArea'])->name('folders.uploadToArea');
 
@@ -77,9 +132,6 @@ Route::middleware('auth')->group(function () {
     Route::post('/upload-document', [DocumentController::class, 'upload'])->name('upload.document');
     Route::get('/dcc/submissions', [DocumentController::class, 'dccSubmissions'])->name('dcc.submissions');
 
-    // 📌 **QA - Pending, Approved, Rejected Documents & Reports**
-    Route::get('/qa/pending', [DocumentController::class, 'showPending'])->name('qa.pending');
-    Route::post('/document/{id}/approve', [DocumentController::class, 'approve'])->name('document.approve');
 
     // 🛑 **Fixing Duplicate Reject Routes & Adding Rejection Reason Support**
     Route::post('/documents/{id}/reject', [DocumentController::class, 'reject'])->name('document.reject'); // ✅ Fixed

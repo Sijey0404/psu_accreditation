@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Subtopic;
 use App\Models\Folder;
 use App\Services\GoogleDriveService;
+use Illuminate\Support\Facades\Auth;
 
 class SubtopicController extends Controller
 {
@@ -50,19 +51,27 @@ class SubtopicController extends Controller
 
     public function show($id)
     {
-        $subtopic = Subtopic::with(['department', 'folders'])->findOrFail($id);
+        $subtopic = Subtopic::with(['department', 'folders.documents'])->findOrFail($id);
         $areaFolders = self::getAreaFolders();
-
         return view('subtopics.show', compact('subtopic', 'areaFolders'));
     }
 
-    public function generateFolders(Request $request, $subtopicId)
+    public function generateFolders(Request $request, $id)
     {
+        ini_set('max_execution_time', 600);
+        set_time_limit(600);
+
+        $user = Auth::user();
+
+        if (!in_array($user->role, ['QA', 'Accreditor'])) {
+            return redirect()->back()->with('error', 'You do not have permission to generate folders.');
+        }
+
         $request->validate([
             'area' => 'required|string',
         ]);
 
-        $subtopic = Subtopic::findOrFail($subtopicId);
+        $subtopic = Subtopic::findOrFail($id);
         $areaFolders = self::getAreaFolders();
         $selectedArea = $request->input('area');
 
@@ -70,27 +79,60 @@ class SubtopicController extends Controller
             return redirect()->back()->with('error', 'Invalid area selected.');
         }
 
-        // Google Drive Integration
         $drive = new GoogleDriveService();
         $mainParentDriveId = env('GOOGLE_DRIVE_FOLDER_ID');
         $subtopicDriveFolderId = $drive->createFolder($subtopic->name, $mainParentDriveId);
 
-        foreach ($areaFolders[$selectedArea] as $folderName) {
-            Folder::firstOrCreate([
-                'subtopic_id' => $subtopic->id,
-                'name' => $folderName
-            ]);
-
-            // Create folder on Google Drive
-            $drive->createFolder($folderName, $subtopicDriveFolderId);
+        if (!$subtopicDriveFolderId) {
+            return redirect()->back()->with('error', 'Failed to create folder on Google Drive.');
         }
 
-        return redirect()->route('subtopics.show', $subtopicId)->with('success', 'Folders generated successfully!');
+        $subtopic->update(['drive_id' => $subtopicDriveFolderId]);
+
+        \Log::info('Subtopic Drive Folder ID:', ['drive_id' => $subtopicDriveFolderId]);
+
+        $areaData = $areaFolders[$selectedArea];
+        $currentMainFolder = null;
+        $currentMainDriveId = null;
+
+        foreach ($areaData as $folderName) {
+            if (preg_match('/^[A-Z]\. /', $folderName)) {
+                $currentMainFolder = $folderName;
+                $currentMainDriveId = $drive->createFolder($currentMainFolder, $subtopicDriveFolderId);
+
+                if (!$currentMainDriveId) {
+                    \Log::error('Failed to create main folder on Google Drive', ['folder' => $currentMainFolder]);
+                }
+
+                Folder::updateOrCreate(
+                    ['subtopic_id' => $subtopic->id, 'name' => $currentMainFolder],
+                    [
+                        'path' => $currentMainFolder,
+                        'drive_id' => $currentMainDriveId,
+                    ]
+                );
+            } else {
+                if ($currentMainFolder && $currentMainDriveId) {
+                    $subDriveId = $drive->createFolder($folderName, $currentMainDriveId);
+
+                    if (!$subDriveId) {
+                        \Log::error('Failed to create subfolder on Google Drive', ['folder' => $folderName]);
+                    }
+
+                    Folder::updateOrCreate(
+                        ['subtopic_id' => $subtopic->id, 'name' => $folderName],
+                        [
+                            'path' => $folderName,
+                            'drive_id' => $subDriveId,
+                        ]
+                    );
+                }
+            }
+        }
+
+        return redirect()->route('subtopics.show', $id)->with('success', 'Folders generated successfully!');
     }
 
-    /**
-     * Centralized folder structure used by both generateFolders and show
-     */
     private static function getAreaFolders()
     {
         return [
@@ -113,7 +155,7 @@ class SubtopicController extends Controller
                 'C.1. Evidence/s of congruence between educational practices/activities and the VMGO.',
                 'C.2. Awards/citations received by the program under survey.',
                 'C.3. List of linkages, consortia and networking.',
-                'C.4. Data on employability of graduates.'
+                'C.4. Data on employability of graduates.',
             ],
             'Area 2' => [
                 'A. Academic Qualifications and Professional Experience',
@@ -146,8 +188,199 @@ class SubtopicController extends Controller
                 'D.4. List of faculty arranged according to academic rank.',
                 'E. Faculty Development',
                 'E.1. Copy of the Faculty Development Program.',
-                'E.2. Profile of faculty who were granted scholarships, fellowships, etc.'
-            ]
+                'E.2. Profile of faculty who were granted scholarships, fellowships, etc.',
+                'E.3. File copies of Scholarship/ Fellowship/Training Contract.',
+                'E.4. Summary of in-service training conducted in campus by the program under survey, including list of faculty-participants.',
+                'E.5. Budgetary allocation for faculty development.',
+                'F. Professional Performance and Scholarly Works',
+                'F.1. Updated course syllabi of individual faculty.',
+                'F.2. Samples of instructional materials developed and produced by the faculty (workbook, manual, module, ICT materials etc.)',
+                'F.3. Composition and Profile of the Instructional Materials Development Committee',
+                'F.4. Faculty who served as lecturer, resource person, consultant in his/her field of specialization as well as in allied disciplines.',
+                'F.5. List of publications where faculty outputs are published.',
+                'G. Salaries, Fringe Benefits and Incentives',
+                'G.1. Policies and guidelines on salaries, benefits and privileges including the system of avallment',
+                'G.2. List of privileges, tringe benefits as well as incentives.',
+                'G.3. Copy of the Plantilla',
+                'G.4. Evidence/s that tringe benefits and incentives are provided to the faculty.',
+                'G.5. Description of the Faculty Performance Evaluation System, including the instrument/s used.',
+                'G.6. List of faculty given recognition/ award/credits for outstanding performance and production of scholarly works.',
+                'H. Professionalism',
+                'H.1. Evidence/s on faculty attendance in class and other institutional activities.',
+                'H.2. Minutes of Meetings Conducted.',
+                'H.3. Evidence on Submission of Required Reports by the faculty.',
+                'H.4. Personnel Records on Administrative/Disciplinary Cases, if any',
+                'H.5. Records of termination cases, if any.',
+                'H.6. Evidence/s of professional growth (advanced studies and attendance to seminars and other in service training)',
+                'H.7. Code of Professional Ethics/RA 6713 and other pertinent CSC issuances.',
+                'H.8. Evidence/s of dissemination and observance of RA 6713, the Citizen’s Charter and other pertinent legal issuances.',
+            ],
+            // Add Area 3 and so on here as needed
+
+
+            'Area 3' => [
+                'A. Curriculum and Program of Studies',
+                'A.1. Copy of the Curriculum (with prerequisite courses, where applicable).',
+                'A.2. CHED Policies and Standards, CMOs, where applicable.',
+                'A.3. Copies of MOA or MOU with agencies/institutions regarding Immersion, OJT, RLE, Practice Teaching and other related activities.',
+                'A.4. Minutes of the Academic Council meetings.',
+                'A.5. Polices on curriculum development/review.',
+                'A.6. Policies on validation of subjects taken by transferees, and accommodation of students with special needs.',
+                
+                'B. Instructional Process Methodologies and Learning Opportunities.',
+                'B.1. Compilation of updated course syllabi in all subjects.',
+                'B.2. Evidence/s on remedial programs conducted.',
+                'B.3. List of teaching strategies used in the different subject areas.',
+                'B.4. Sample course requirements submitted by students.',
+                'B.5. Record of class observations.',
+                'B.6. List of academic linkages or consortia.',
+
+                'C. Assessment of Academic Performance',
+                'C.1. Sample copies of summative examination (midterm and final) with Table of Specifications.',
+                'C.2. Samples of non-traditional assessment tools, e.g. rubric, portfolio, etc.',
+                'C.3. Samples of assessment tools for individual differences and multiple intelligences.',
+                'C.4. Sample class records.',
+                'C.5. Copy of the grading system, including evidence that it has been approved.',
+
+                'D. Classroom Management',
+                'D.1. Policies on class attendance and discipline.',
+                'D.2. Evidence that independent work/performance is encouraged and monitored, such as student outputs.',
+
+                'E. Graduation Requirements',
+                'E.1. Policies that apply to student returnees, transferees and students with academic deficiencies including residency.',
+                'E.2. Sample copy of a Student’s Clearance before graduation.',
+                'E.4. Policies on OJT (Practice Teaching, RLE, Apprenticeship, Practicum, etc.), if applicable.',
+
+                'F. Administrative Support for Effective Instruction',
+                'F.1. Administrative Manual.',
+                'F.2. Evidence/s of dialogues conducted among the administration, faculty, and students.',
+                'F.3. Schedule of regular faculty consultation hours.',
+                'F.4. A system of awards/recognition for graduating students with outstanding achievements.',
+                'F.5. Results of a study on the licensure performance of graduates, if applicable.',
+                'F.6. Evidence of administrative support to improve licensure performance of graduates, if applicable.',
+                'F.7. Conduct of a tracer study on the employability of graduates.',
+                'F.8. Feedback from employers regarding performance of graduates.',
+],
+        'Area 4' => [
+                'A. Student Services Program',
+                'A.1. A copy of the objectives of the SSP.',
+                'A.2. Organizational Chart of the SSP.',
+                'A.3. Functional Chart of the SSP.',
+                'A.4. Profile of the SSP Staff.',
+                'A.5. Copy of the SSP Master Plan.',
+                'A.6. Evaluation program to assess the effectiveness of the SSP.',
+                'A.7. Inventory of physical facilities, equipment, supplies and materials for the SSP.',
+
+                'B. Admission and Retention',
+                'B.1. Bulletin of Information.',
+                'B.2. Student Handbook.',
+                'B.3. Data on student admission (enrollment trends, drop-out rate, transferees, course shifters, etc.).',
+
+                'C. Guidance Program',
+                'C.1. Profile of the Guidance and Counseling Head.',
+                'C.2. Updated Student Profiles.',
+                'C.3. Policies on the confidentiality of student records.',
+                'C.4. A copy of the Testing program.',
+                'C.5. List of tests and evaluative tools used in Guidance and Counseling services.',
+                'C.6. List of students who availed of the counseling service.',
+                'C.7. Sample counseling referral form.',
+                'C.8. List of prospective employers of graduates of a particular program.',
+                'C.9. Sample letters of employers inviting graduates of a particular program to apply.',
+                'C.10. Alumni Directory and officers of the Alumni Association.',
+                'C.11. Linkage/s established with industries and prospective employers.',
+                'C.12. Copy of the instrument to evaluate the guidance program.',
+
+                'D. Other Student Services',
+                'D.1. Copies of the Health Services Program.',
+                'D.2. Profile of the Medical/Dental Staff.',
+                'D.3. Records of students who availed of Medical/Dental services.',
+                'D.4. Copy of sanitary permit for canteen operation.',
+                'D.5. Health certificates of the canteen staff and handlers.',
+
+                'Sports Development Program',
+                'D.6. Policies on the selection of athletes.',
+                'D.7. Budget allocation for sports development.',
+                'D.8. Inventory of facilities, equipment, supplies and materials provided to the Sports Services Unit.',
+                'D.9. Evidence of monitoring and evaluation of sports activities.',
+],
+
+
+
+'Area 5' => [
+                'A. Priorities and Relevance',
+                'A.1. Copy of the institution Research Agenda.',
+                'A.2. Structure of the Research and Development Unit including the profile of the Research Head.',
+                'A.3. A copy of the research program of the program under survey.',
+                'A.4. Evidence of participation of different stakeholders in the formulation of the research agenda.',
+                'A.5. Abstracts of researches conducted.',
+
+                'B. Funding and Other Resources',
+                'B.1. Copy of the budget allocation for research.',
+                'B.2. List of linkages/networking with research funding agencies.',
+                'B.3. Inventory of research facilities, equipment and amenities.',
+                'B.4. Profile of the research personnel/staff.',
+                'B.5. List of patents, licenses, copyrights and other research outputs, including income generated from each of them if any.',
+                'B.6. Copy of the research personnel/staff.',
+                'B.7. List of term/collaborative researches conducted.',
+
+                'C. Implementation, Monitoring, Evaluation and Utilization of Research Results/Outputs',
+                'C.1. Copy of the Research Manual.',
+                'C.2. Summary of faculty researches conducted.',
+                'C.3. List of in-service training conducted to enhance faculty research capabilities of faculty.',
+                'C.4. Report on in-house reviews conducted.',
+                'C.5. Evidence/s that research results have been utilized.',
+                'C.6. Policies pertaining to Intellectual Property Rights (IPR).',
+
+                'D. Publication and Dissemination',
+                'D.1. Evidence of publication and dissemination of research results.',
+                'D.2. List of dissemination activities conducted (forum, conference seminars, etc.).',
+                'D.3. Copies of published articles.',
+                'D.4. Linkage/s established for exchange of research publications.',
+                'D.5. Composition of a Technical Committee to edit research manuscripts and technical reports.',
+                'D.6. List of faculty who served as paper precentors, lecturers, external evaluators, dissertation/thesis advisers, critics, etc., including relevant information.',
+],
+
+'Area 6' => [
+                'A. Priorities and Relevance',
+                'A.1. Copy of the benchmark survey instrument.',
+                'A.2. Evidence of complementation between the curriculum of the program under survey and its extension program.',
+                'A.3. List of linkages established with extension-oriented agencies.',
+                'A.4. Copies of MOA or MOU with partner or collaborating GA’s, NGO’s, and institutions.',
+
+                'B. Planning, Implementation, Monitoring and Evaluation',
+                'B.1. Evidence of extension planning sessions.',
+                'B.2. Copy of the extension program, including relevant information.',
+
+                '— Implementation —',
+                'B.3. Organizational Structure of the Extension Unit.',
+                'B.4. Profile of the Unit Head and his/her Staff.',
+                'B.5. Operational Plan of the Extension Program, with focus on implementation strategies.',
+                'B.6. Roster/Experts for extension projects, if necessary.',
+                'B.7. Evidence of transfer of appropriate technology to the target clientele.',
+                'B.8. Samples of packaged technologies/news/information disseminated to the clientele.',
+                'B.9. Copy of the Extension Manual.',
+                'B.10. Copy of the monitoring and evaluation instrument/s.',
+                'B.11. Sample accomplishment and terminal reports.',
+
+                '— Funding and Other Resources —',
+                'B.12. Copy of the budgetary allocation for the extension program.',
+                'B.13. Evidences of outsourcing for fund augmentation.',
+                'B.14. Evidences of outsourcing for technical assistance and service inputs from other agencies.',
+
+                'C. Community Involvement and Participation in the Extension Activities',
+                'C.1. Evidence of community participation in the planning and implementation of extension projects/activities.',
+                'C.2. Evidence of technology adoption, utilization and commercialization.',
+                'C.3. Copy of a long-term sustainable extension program, e.g., community development projects, etc.',
+                'C.4. List of collaborating agencies, including the nature of collaboration.',
+],
+
+
+
+
+
+
+
         ];
     }
 }
+

@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Folder extends Model
 {
-    protected $fillable = ['subtopic_id', 'name', 'path'];
+    protected $fillable = ['subtopic_id', 'name', 'path', 'drive_id'];
 
     public function subtopic()
     {
@@ -21,8 +21,9 @@ class Folder extends Model
 
 public function documents()
 {
-    return $this->hasMany(AreaDocument::class);
+    return $this->hasMany(Document::class); // ✅ use correct model
 }
+
 
 
 }

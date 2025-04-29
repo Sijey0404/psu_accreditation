@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use App\Models\AreaDocument;
 
+
 class FolderController extends Controller
 {
     public function show($id)
@@ -72,5 +73,12 @@ public function uploadToArea(Request $request, $id)
 
     return back()->with('success', 'File uploaded to Area folder successfully!');
 }
+
+public function getDocuments($id)
+{
+    $documents = Document::where('folder_id', $id)->get();
+    return response()->json($documents);
+}
+
 
 }
