@@ -28,4 +28,13 @@ class GoogleDriveController extends Controller
         $files = $this->googleDriveService->searchFiles($folderId, $query);
         return view('qa.google-drive', compact('files'));
     }
+    public function getFolderContents($id)
+{
+    $files = $this->googleDriveService->listFiles($id);
+    return response()->json([
+        'files' => $files,
+        'folderName' => 'Folder', // You can enhance this to get actual name
+    ]);
+}
+
 }

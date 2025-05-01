@@ -107,4 +107,15 @@ class GoogleDriveService
             throw $e;
         }
     }
+    public function listFiles($folderId)
+{
+    $query = "'$folderId' in parents and trashed = false";
+    $response = $this->service->files->listFiles([
+        'q' => $query,
+        'fields' => 'files(id, name, mimeType)',
+    ]);
+
+    return $response->getFiles();
+}
+
 }

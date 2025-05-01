@@ -12,6 +12,8 @@ use App\Http\Controllers\FolderController;
 use App\Http\Controllers\QAController;
 use App\Http\Controllers\UserManagementController;
 
+Route::get('/google-drive/folder/{id}', [GoogleDriveController::class, 'getFolderContents']);
+
 // Documents (Accreditor)
 // No conflict with dynamic document routes
 Route::view('/documents/view-page', 'documents.view')->name('documents.view.page');

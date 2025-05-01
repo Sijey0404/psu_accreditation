@@ -13,6 +13,7 @@
             <li><a href="{{ route('qa.rejected') }}" class="block py-2 hover:bg-blue-100 px-2 rounded">❌ Rejected Documents</a></li>
             <li><a href="{{ route('user.management') }}" class="block py-2 hover:bg-blue-100 px-2 rounded">👤 User Management</a></li>
             <li><a href="{{ route('reports.accreditation') }}" class="block py-2 hover:bg-blue-100 px-2 rounded">📜 Accreditation Report</a></li>
+            <li><a href="{{ route('documents.view.page') }}" class="block py-2 hover:bg-blue-100 px-2 rounded">📂 View Documents</a></li>
 
 
         @elseif(auth()->user()->role == 'Accreditor')
