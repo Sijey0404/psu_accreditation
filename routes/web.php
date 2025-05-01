@@ -12,6 +12,24 @@ use App\Http\Controllers\FolderController;
 use App\Http\Controllers\QAController;
 use App\Http\Controllers\UserManagementController;
 
+// Documents (Accreditor)
+// No conflict with dynamic document routes
+Route::view('/documents/view-page', 'documents.view')->name('documents.view.page');
+
+// Evaluation Reports (Accreditor)
+Route::view('/reports/evaluation', 'reports.evaluation')->name('reports.evaluation');
+
+// Upload Area Documents (Area Chair)
+Route::view('/area/upload', 'area.upload')->name('area.upload');
+
+// Upload Draft Documents (Area Member)
+Route::view('/area/draft-upload', 'area.draft-upload')->name('area.draft-upload');
+
+Route::get('/reports/accreditation', function () {
+    return view('reports.accreditation');
+})->name('reports.accreditation');
+
+
 Route::middleware(['auth'])->group(function () {
     Route::get('/faculty-management', [UserManagementController::class, 'manageFaculty'])
         ->name('faculty.management');
