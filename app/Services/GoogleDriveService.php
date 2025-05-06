@@ -118,4 +118,16 @@ class GoogleDriveService
     return $response->getFiles();
 }
 
+public function countFilesInFolder($folderId)
+{
+    $query = "'$folderId' in parents and trashed = false";
+    $response = $this->service->files->listFiles([
+        'q' => $query,
+        'fields' => 'files(id)',
+    ]);
+
+    return count($response->getFiles());
+}
+
+
 }

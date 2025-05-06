@@ -41,37 +41,43 @@
         }
 
         function renderContent(files) {
-            const contentDiv = document.getElementById('drive-content');
-            contentDiv.innerHTML = '';
+    const contentDiv = document.getElementById('drive-content');
+    contentDiv.innerHTML = '';
 
-            if (files.length === 0) {
-                contentDiv.innerHTML = '<p class="text-gray-500">This folder is empty.</p>';
-                return;
-            }
+    if (files.length === 0) {
+        contentDiv.innerHTML = '<p class="text-gray-500">This folder is empty.</p>';
+        return;
+    }
 
-            files.forEach(file => {
-                const div = document.createElement('div');
-                div.className = "p-3 border rounded mb-2 hover:bg-gray-50 cursor-pointer";
+    files.forEach(file => {
+        const div = document.createElement('div');
+        div.className = "relative p-3 border rounded mb-2 hover:bg-gray-50 cursor-pointer";
 
-                if (file.mimeType === 'application/vnd.google-apps.folder') {
-                    div.innerHTML = `📁 <strong>${file.name}</strong>`;
-                    div.onclick = () => {
-                        folderStack.push({ id: currentFolderId, name: file.name });
-                        currentFolderId = file.id;
-                        loadFolder(file.id);
-                    };
-                } else {
-                    div.innerHTML = `
-                        📄 ${file.name} 
-                        <a href="https://drive.google.com/file/d/${file.id}/preview" 
-                           target="_blank" 
-                           class="text-blue-600 ml-2 underline">View</a>
-                    `;
-                }
-
-                contentDiv.appendChild(div);
-            });
+        if (file.mimeType === 'application/vnd.google-apps.folder') {
+            const fileCount = file.fileCount !== undefined ? file.fileCount : 0;
+            const fileCountLabel = `<div class="absolute -top-2 -right-2 bg-blue-500 text-white text-xs rounded-full px-2 py-1">${fileCount} file${fileCount !== 1 ? 's' : ''}</div>`;
+            div.innerHTML = `
+                ${fileCountLabel}
+                📁 <strong>${file.name}</strong>
+            `;
+            div.onclick = () => {
+                folderStack.push({ id: currentFolderId, name: file.name });
+                currentFolderId = file.id;
+                loadFolder(file.id);
+            };
+        } else {
+            div.innerHTML = `
+                📄 ${file.name} 
+                <a href="https://drive.google.com/file/d/${file.id}/preview" 
+                   target="_blank" 
+                   class="text-blue-600 ml-2 underline">View</a>
+            `;
         }
+
+        contentDiv.appendChild(div);
+    });
+}
+
 
         function updateBreadcrumb(currentId, currentName) {
             const breadcrumbDiv = document.getElementById('breadcrumb');

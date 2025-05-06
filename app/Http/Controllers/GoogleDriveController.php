@@ -29,12 +29,23 @@ class GoogleDriveController extends Controller
         return view('qa.google-drive', compact('files'));
     }
     public function getFolderContents($id)
-{
-    $files = $this->googleDriveService->listFiles($id);
-    return response()->json([
-        'files' => $files,
-        'folderName' => 'Folder', // You can enhance this to get actual name
-    ]);
-}
+    {
+        $files = $this->googleDriveService->listFiles($id);
+    
+        // Add file count for folders
+        $enhancedFiles = collect($files)->map(function ($file) {
+            if ($file->mimeType === 'application/vnd.google-apps.folder') {
+                $count = app(GoogleDriveService::class)->countFilesInFolder($file->id);
+                $file->fileCount = $count;
+            }
+            return $file;
+        });
+    
+        return response()->json([
+            'files' => $enhancedFiles,
+            'folderName' => 'Folder',
+        ]);
+    }
+    
 
 }
