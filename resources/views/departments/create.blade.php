@@ -5,12 +5,12 @@
 
     <!-- Main Content -->
     <div class="flex-1 p-6 bg-gray-50 rounded-lg shadow-md">
-        <h1 class="text-3xl font-semibold text-gray-800 mb-4">📂 Add New Department</h1>
+        <h1 class="text-3xl font-semibold text-gray-800 mb-4">📂 Add New Course</h1>
 
         <form action="{{ route('departments.store') }}" method="POST" class="mt-4 space-y-6">
             @csrf
             <div class="space-y-2">
-                <label for="name" class="block text-lg font-medium text-gray-700">Department:</label>
+                <label for="name" class="block text-lg font-medium text-gray-700">Course:</label>
                 <input type="text" name="name" id="name" class="border border-gray-300 rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500" required placeholder="Enter department name" value="{{ old('name') }}">
 
                 @error('name')
@@ -19,7 +19,7 @@
             </div>
 
             <div class="space-y-2">
-                <label for="slug" class="block text-lg font-medium text-gray-700">Course:</label>
+                <label for="slug" class="block text-lg font-medium text-gray-700">Department:</label>
                 <input type="text" name="slug" id="slug" class="border border-gray-300 rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500" required placeholder="Enter name" value="{{ old('slug') }}">
 
                 @error('slug')
