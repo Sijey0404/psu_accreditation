@@ -372,7 +372,170 @@ class SubtopicController extends Controller
                 'C.2. Evidence of technology adoption, utilization and commercialization.',
                 'C.3. Copy of a long-term sustainable extension program, e.g., community development projects, etc.',
                 'C.4. List of collaborating agencies, including the nature of collaboration.',
+
 ],
+
+'Area VI' => [
+    'A. Priorities and Relevance',
+    'A.1. Extension Program and Projects aligned with institutional, local, regional and national development goals.',
+    'A.2. Documents showing that extension programs address the needs of the community.',
+    'A.3. Baseline survey/study results as basis for program implementation.',
+    'A.4. Criteria used in selecting target clientele/beneficiaries.',
+
+    'B. Planning, Implementation, Monitoring and Evaluation',
+    'B.1. Extension agenda/thrusts and objectives.',
+    'B.2. Extension framework/model.',
+    'B.3. Extension policies and guidelines.',
+    'B.4. Proof of stakeholder involvement in planning.',
+    'B.5. Extension proposals with budgets, work plans and expected outcomes.',
+    'B.6. Terminal and periodic reports.',
+    'B.7. Monitoring and evaluation tools used in assessing extension activities.',
+    'B.8. Success indicators/outcomes/results of extension activities.',
+
+    'C. Funding and Other Resources',
+    'C.1. Annual budget for extension projects and activities.',
+    'C.2. Sources of funding (GAA, LGU, NGO, etc.).',
+    'C.3. Logistics support (facilities, equipment, supplies, transport, etc.).',
+
+    'D. Community Involvement and Participation',
+    'D.1. Proof of participation of community members in the planning and implementation of extension projects.',
+    'D.2. MOA/MOU with partner agencies and stakeholders.',
+    'D.3. Documentation of community activities, photos, attendance sheets, reports.',
+
+    'E. Networking and Linkages',
+    'E.1. List of partner institutions/agencies.',
+    'E.2. MOAs/MOUs with partner organizations.',
+    'E.3. Joint implementation reports.',
+
+    'F. Outcomes/Impact',
+    'F.1. Documented impact assessments.',
+    'F.2. Testimonials or feedback from beneficiaries.',
+    'F.3. Awards/recognition received by the extension program or faculty.',
+],
+
+'Area 7' => [
+    'A. Research Agenda and Priorities',
+    'A.1. Approved institutional research agenda.',
+    'A.2. Alignment of research agenda with national and local priorities.',
+    'A.3. Evidence of stakeholder consultation in the formulation of research priorities.',
+
+    'B. Research Capability',
+    'B.1. Profile of research personnel (training, experience, etc.).',
+    'B.2. Faculty with completed research trainings.',
+    'B.3. Number of research-active faculty.',
+    'B.4. Faculty development programs related to research.',
+
+    'C. Research Implementation',
+    'C.1. List of completed and ongoing research projects.',
+    'C.2. Research proposals with approval and funding.',
+    'C.3. Reports and documentation of research activities.',
+    'C.4. Monitoring and evaluation reports.',
+
+    'D. Dissemination, Utilization, and Commercialization',
+    'D.1. Research publications (journals, books, etc.).',
+    'D.2. Participation in conferences, symposia.',
+    'D.3. Utilization reports or evidence of use of research outputs.',
+    'D.4. Patents, copyrights, utility models filed and approved.',
+
+    'E. Funding and Other Resources',
+    'E.1. Annual research budget.',
+    'E.2. External and internal sources of research funding.',
+    'E.3. Facilities and equipment used for research.',
+
+    'F. Linkages and Networking',
+    'F.1. MOAs/MOUs with research institutions.',
+    'F.2. Joint research projects.',
+    'F.3. Evidence of collaborative research activities.',
+],
+
+'Area 8' => [
+    'A. Campus and Site',
+    'A.1. Campus master plan.',
+    'A.2. Vicinity map showing campus layout.',
+    'A.3. Site development plan.',
+    'A.4. Building and facility inventory.',
+
+    'B. Buildings and Grounds',
+    'B.1. Floor plan of buildings.',
+    'B.2. Schedule and records of building maintenance.',
+    'B.3. Pictures of existing buildings and grounds.',
+
+    'C. Classrooms and Offices',
+    'C.1. List of classrooms with seating capacity.',
+    'C.2. Inventory of office spaces and users.',
+    'C.3. Schedule of classroom utilization.',
+
+    'D. Sanitation and Waste Disposal',
+    'D.1. Restroom facility plan and maintenance reports.',
+    'D.2. Solid waste management plan.',
+    'D.3. Contracts with waste disposal service providers.',
+
+    'E. Health, Safety and Security',
+    'E.1. Health clinic equipment inventory.',
+    'E.2. Fire safety inspection certificate.',
+    'E.3. Emergency response plan and drills documentation.',
+    'E.4. Security personnel records and incident reports.',
+
+    'F. Equipment and Facilities',
+    'F.1. Inventory of instructional facilities and equipment.',
+    'F.2. Maintenance records of major equipment.',
+    'F.3. Procurement and depreciation records.',
+],
+
+'Area 9' => [
+    'A. Laboratory Management and Safety',
+    'A.1. Laboratory operations manual.',
+    'A.2. Laboratory safety guidelines and procedures.',
+    'A.3. Safety inspection reports.',
+    'A.4. MSDS (Material Safety Data Sheets) for chemicals.',
+
+    'B. Laboratory Equipment and Supplies',
+    'B.1. Inventory of laboratory tools, equipment, and consumables.',
+    'B.2. Calibration and maintenance logs.',
+    'B.3. Procurement plans and purchase orders.',
+
+    'C. Laboratory Utilization',
+    'C.1. Laboratory schedules and utilization reports.',
+    'C.2. Records of student laboratory outputs.',
+    'C.3. Feedback from students and faculty on lab adequacy.',
+
+    'D. Technical Support and Staffing',
+    'D.1. Personnel complement and job descriptions.',
+    'D.2. Training records of lab technicians.',
+    'D.3. Performance evaluation of lab staff.',
+],
+
+'Area 10' => [
+    'A. Organizational Structure',
+    'A.1. Organizational chart of the institution.',
+    'A.2. Job descriptions and functions of administrators.',
+    'A.3. Appointment papers and contracts.',
+
+    'B. Administrative Services',
+    'B.1. Operations manual for administrative units.',
+    'B.2. Records management policies and procedures.',
+    'B.3. Personnel records and 201 files.',
+
+    'C. Planning and Development',
+    'C.1. Strategic plan of the institution.',
+    'C.2. Development plans (short-term, medium-term).',
+    'C.3. Implementation and monitoring reports.',
+
+    'D. Financial Management',
+    'D.1. Annual budget and audited financial statements.',
+    'D.2. Procurement plans and bidding documents.',
+    'D.3. Reports on fund utilization.',
+
+    'E. Human Resource Management',
+    'E.1. HR manual and policies.',
+    'E.2. Records of recruitment and promotions.',
+    'E.3. Professional development activities.',
+
+    'F. Transparency and Accountability',
+    'F.1. Citizen’s Charter.',
+    'F.2. Anti-corruption and good governance initiatives.',
+    'F.3. Internal audit reports.',
+]
 
 
 
