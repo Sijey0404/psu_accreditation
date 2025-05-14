@@ -1,108 +1,118 @@
+<?php
+$royalBlue = '#1a237e';
+$goldenBrown = '#b87a3d';
+?>
+
 <x-app-layout>
-    <div class="container mx-auto px-4 py-8 bg-gray-50 rounded-lg shadow-lg">
-        
-
-        <!-- Search Form -->
-        <form method="GET" action="{{ route('documents.approved') }}" class="mb-6 flex items-center space-x-4">
-            <div class="flex-1">
-                <input type="text" name="search" value="{{ request('search') }}" placeholder="Search by User Name or Category"
-                    class="border border-gray-300 p-3 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700 placeholder-gray-400">
+    <!-- Header Banner -->
+    <div class="bg-white border-b">
+        <div class="max-w-7xl mx-auto py-3 px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center space-x-3">
+                <svg class="w-6 h-6 text-[{{ $royalBlue }}]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                <h1 class="text-xl font-semibold text-gray-900">Approved Documents at PSU San Carlos</h1>
             </div>
-            <button type="submit" class="bg-blue-500 text-white px-6 py-3 rounded-lg focus:outline-none hover:bg-blue-600 transition duration-200 ease-in-out">
-                Search
-            </button>
-        </form>
+        </div>
+    </div>
 
-        <!-- Filter Button and Dropdown -->
-        <div class="relative inline-block mb-6">
-            <button class="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 focus:outline-none flex items-center space-x-2 transition duration-200 ease-in-out" id="filterBtn">
-                <i class="fas fa-filter"></i>
-                <span>Filter</span>
-            </button>
-
-            <!-- Dropdown -->
-            <div id="filterDropdown" class="absolute right-0 mt-2 bg-white shadow-lg rounded-lg w-60 hidden p-4 border border-gray-200">
-                <form method="GET" action="{{ route('documents.approved') }}">
-                    <div class="mb-4">
-                        <label for="file_type" class="block text-sm font-medium text-gray-700">File Type</label>
-                        <select name="file_type" id="file_type" class="mt-1 block w-full text-gray-700 border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
-                            <option value="">All</option>
+    <div class="min-h-screen bg-gray-50 py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Search and Filter Section -->
+            <div class="mb-6 bg-white rounded-lg shadow-sm p-4 border border-gray-200">
+                <div class="flex flex-col md:flex-row gap-4">
+                    <!-- Search -->
+                    <div class="flex-1">
+                        <form method="GET" action="{{ request()->url() }}" id="filterForm" class="flex flex-col md:flex-row gap-4">
+                            <div class="flex-1">
+                                <input type="text" name="search" value="{{ request('search') }}" 
+                                    placeholder="Search by title, category or uploader..." 
+                                    class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-[{{ $royalBlue }}] focus:border-[{{ $royalBlue }}] outline-none">
+                            </div>
+                            <!-- Filters -->
+                            <div class="flex gap-4">
+                                <select name="file_type" class="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-[{{ $royalBlue }}] focus:border-[{{ $royalBlue }}] outline-none">
+                                    <option value="">All File Types</option>
                             <option value="pdf" {{ request('file_type') == 'pdf' ? 'selected' : '' }}>PDF</option>
                             <option value="docx" {{ request('file_type') == 'docx' ? 'selected' : '' }}>DOCX</option>
                             <option value="xlsx" {{ request('file_type') == 'xlsx' ? 'selected' : '' }}>XLSX</option>
-                            <option value="txt" {{ request('file_type') == 'txt' ? 'selected' : '' }}>TXT</option>
                         </select>
+                                <input type="date" name="approved_at" value="{{ request('approved_at') }}" 
+                                    class="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-[{{ $royalBlue }}] focus:border-[{{ $royalBlue }}] outline-none">
                     </div>
-
-                    <div class="mb-4">
-                        <label for="approved_at" class="block text-sm font-medium text-gray-700">Approved At</label>
-                        <input type="date" name="approved_at" id="approved_at" value="{{ request('approved_at') }}" class="mt-1 block w-full text-gray-700 border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                        </form>
                     </div>
-
-                    <div class="flex justify-between">
-                        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-lg focus:outline-none hover:bg-blue-600 transition duration-200 ease-in-out">
-                            Apply
-                        </button>
-                        <button type="button" onclick="clearFilters()" class="text-red-500 hover:text-red-600">
-                            Clear
-                        </button>
                     </div>
-                </form>
             </div>
         </div>
 
         <!-- Documents Table -->
-        <div class="overflow-x-auto bg-white shadow-lg rounded-lg">
-            <table class="min-w-full table-auto text-sm text-gray-700">
-                <thead class="bg-blue-100 text-blue-700">
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-[{{ $royalBlue }}]">
                     <tr>
-                        <th class="py-3 px-6 text-left">Title</th>
-                        <th class="py-3 px-6 text-left">Category</th>
-                        <th class="py-3 px-6 text-left">Uploaded By</th>
-                        <th class="py-3 px-6 text-left">File Type</th>
-                        <th class="py-3 px-6 text-left">Approved At</th>
-                        <th class="py-3 px-6 text-left">Action</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">Title</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">Category</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">Uploaded By</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">File Type</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">Approved Date</th>
+                            <th class="px-6 py-4 text-center text-xs font-semibold text-white uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
-                <tbody>
+                    <tbody class="bg-white divide-y divide-gray-200">
                     @forelse($documents as $document)
-                        <tr class="hover:bg-blue-50">
-                            <td class="py-3 px-6 border-b">{{ $document->title }}</td>
-                            <td class="py-3 px-6 border-b">{{ $document->category ?? 'N/A' }}</td>
-                            <td class="py-3 px-6 border-b">{{ $document->uploader->name ?? 'Unknown User' }}</td>
-                            <td class="py-3 px-6 border-b">{{ strtoupper($document->file_type) }}</td>
-                            <td class="py-3 px-6 border-b">
-                                {{ $document->approved_at ? \Carbon\Carbon::parse($document->approved_at)->format('Y-m-d H:i') : 'N/A' }}
+                            <tr class="hover:bg-gray-50 transition-colors duration-150">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm font-medium text-gray-900">{{ $document->title }}</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-500">{{ $document->category ?? 'N/A' }}</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-500">{{ $document->uploader->name ?? 'Unknown' }}</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-[{{ $goldenBrown }}]/10 text-[{{ $goldenBrown }}]">
+                                        {{ strtoupper($document->file_type) }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    {{ $document->approved_at ? \Carbon\Carbon::parse($document->approved_at)->format('M d, Y') : 'N/A' }}
                             </td>
-                            <td class="py-3 px-6 border-b">
-                                <a href="{{ asset('storage/' . $document->file_path) }}" target="_blank" class="text-blue-500 hover:underline">
-                                    View File
+                                <td class="px-6 py-4 whitespace-nowrap text-center">
+                                    <a href="{{ asset('storage/' . $document->file_path) }}" target="_blank"
+                                        class="bg-[{{ $royalBlue }}] text-white px-3 py-1.5 rounded-lg hover:bg-opacity-90 transition-colors duration-200 inline-flex items-center">
+                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                        </svg>
+                                        View
                                 </a>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="py-4 px-6 text-center text-gray-500">
-                                No approved documents found.
+                                <td colspan="6" class="px-6 py-10 text-center text-gray-500">
+                                    <div class="flex flex-col items-center justify-center">
+                                        <svg class="w-12 h-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                        </svg>
+                                        <p class="text-lg font-medium">No approved documents found</p>
+                                        <p class="text-sm text-gray-400">Approved documents will appear here</p>
+                                    </div>
                             </td>
                         </tr>
                     @endforelse
                 </tbody>
             </table>
+            </div>
+
+            <!-- Pagination -->
+            @if(method_exists($documents, 'hasPages') && $documents->hasPages())
+                <div class="mt-4">
+                    {{ $documents->links() }}
+                </div>
+            @endif
         </div>
     </div>
-
-    <script>
-        // Toggle the dropdown visibility when clicking the filter button
-        document.getElementById('filterBtn').addEventListener('click', function() {
-            document.getElementById('filterDropdown').classList.toggle('hidden');
-        });
-
-        // Clear all filter inputs
-        function clearFilters() {
-            document.getElementById('file_type').value = '';
-            document.getElementById('approved_at').value = '';
-            document.querySelector('form').submit();
-        }
-    </script>
 </x-app-layout>

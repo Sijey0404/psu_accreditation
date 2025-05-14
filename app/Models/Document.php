@@ -17,6 +17,7 @@ class Document extends Model
         'original_link',
         'status',
         'rejection_reason',
+        'approval_feedback',
         'uploaded_by',
         'folder_id',
         'file_type',

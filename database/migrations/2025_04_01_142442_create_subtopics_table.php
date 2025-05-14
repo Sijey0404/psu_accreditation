@@ -13,7 +13,12 @@ return new class extends Migration
     {
         Schema::create('subtopics', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('department_id');
+            $table->string('name');
+            $table->boolean('has_generated_folders')->default(false);
             $table->timestamps();
+
+            $table->foreign('department_id')->references('id')->on('departments')->onDelete('cascade');
         });
     }
 

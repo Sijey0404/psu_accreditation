@@ -8,6 +8,12 @@ use App\Models\Department;
 
 class DepartmentController extends Controller
 {
+    public function index()
+    {
+        $departments = Department::orderBy('name')->get();
+        return view('departments.index', compact('departments'));
+    }
+
     public function create()
     {
         return view('departments.create');

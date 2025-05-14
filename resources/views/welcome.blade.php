@@ -18,9 +18,8 @@
                 A cutting-edge web-based system for Quality Assurance & Accreditation Management. 
                 Organize and access essential accreditation documents efficiently.
             </p>
-            <div class="mt-6 flex justify-center space-x-4">
-                <a href="{{ url('/login') }}" class="px-6 py-3 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700">Login</a>
-                <a href="{{ url('/register') }}" class="px-6 py-3 bg-gray-300 text-gray-800 rounded-lg shadow-md hover:bg-gray-400">Register</a>
+            <div class="mt-6 flex justify-center">
+                <a href="{{ url('/login') }}" class="px-8 py-3 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 transition-colors duration-200">Login to Portal</a>
             </div>
         </div>
     </div>

@@ -1,98 +1,180 @@
 @props(['departments'])
 
-<div class="bg-white text-blue-600 w-64 h-screen max-h-screen p-4 flex-shrink-0 overflow-y-auto">
-    <h2 class="text-lg font-bold mb-4">Navigation</h2>
+<?php
+$royalBlue = '#1a237e';
+$goldenBrown = '#b87a3d';
+?>
 
-    <ul>
-        <li><a href="{{ route('dashboard') }}" class="block py-2 hover:bg-blue-100 px-2 rounded">📊 Dashboard</a></li>
-        <!-- Static sidebar items remain unchanged -->
+<div class="bg-[{{ $royalBlue }}] text-white w-64 h-screen max-h-screen flex-shrink-0 overflow-hidden">
+    <!-- Logo and Title Section -->
+    <div class="p-4 bg-gradient-to-r from-[{{ $royalBlue }}] to-[{{ $goldenBrown }}] border-b border-white/10">
+        <div class="flex items-center gap-3">
+            <img src="{{ asset('images/logo.png') }}" alt="PSU Logo" class="h-12 w-auto">
+            <div class="flex flex-col">
+                <h1 class="text-2xl font-bold text-white">PSU-SCC</h1>
+                <p class="text-sm text-white/80 italic -mt-1">Accreditation Portal</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scrollable Content -->
+    <div class="overflow-y-auto h-[calc(100vh-5rem)] p-4">
+        <ul class="space-y-1">
+            <li><a href="{{ route('dashboard') }}" class="flex items-center py-2 hover:bg-white/10 px-2 rounded transition-colors duration-150">
+                <span class="mr-2">📊</span>
+                <span>Dashboard</span>
+            </a></li>
 
         @if(auth()->user()->role == 'QA')
-            <li><a href="{{ route('qa.pending') }}" class="block py-2 hover:bg-blue-100 px-2 rounded">📂 Pending Approvals</a></li>
-            <li><a href="{{ route('qa.approved') }}" class="block py-2 hover:bg-blue-100 px-2 rounded">✅ Approved Documents</a></li>
-            <li><a href="{{ route('qa.rejected') }}" class="block py-2 hover:bg-blue-100 px-2 rounded">❌ Rejected Documents</a></li>
-            <li><a href="{{ route('user.management') }}" class="block py-2 hover:bg-blue-100 px-2 rounded">👤 User Management</a></li>
-            <li><a href="{{ route('reports.accreditation') }}" class="block py-2 hover:bg-blue-100 px-2 rounded">📜 Accreditation Report</a></li>
-            <li><a href="{{ route('documents.view.page') }}" class="block py-2 hover:bg-blue-100 px-2 rounded">📂 View Documents</a></li>
-
+                <li><a href="{{ route('qa.pending') }}" class="flex items-center py-2 hover:bg-white/10 px-2 rounded transition-colors duration-150">
+                    <span class="mr-2">📂</span>
+                    <span>Pending Approvals</span>
+                </a></li>
+                <li><a href="{{ route('qa.approved') }}" class="flex items-center py-2 hover:bg-white/10 px-2 rounded transition-colors duration-150">
+                    <span class="mr-2">✅</span>
+                    <span>Approved Documents</span>
+                </a></li>
+                <li><a href="{{ route('qa.rejected') }}" class="flex items-center py-2 hover:bg-white/10 px-2 rounded transition-colors duration-150">
+                    <span class="mr-2">❌</span>
+                    <span>Rejected Documents</span>
+                </a></li>
+                <li><a href="{{ route('user.management') }}" class="flex items-center py-2 hover:bg-white/10 px-2 rounded transition-colors duration-150">
+                    <span class="mr-2">👤</span>
+                    <span>User Management</span>
+                </a></li>
+                <li><a href="{{ route('reports.accreditation') }}" class="flex items-center py-2 hover:bg-white/10 px-2 rounded transition-colors duration-150">
+                    <span class="mr-2">📜</span>
+                    <span>Accreditation Report</span>
+                </a></li>
+                <li><a href="{{ route('documents.view.page') }}" class="flex items-center py-2 hover:bg-white/10 px-2 rounded transition-colors duration-150">
+                    <span class="mr-2">📂</span>
+                    <span>View Documents</span>
+                </a></li>
 
         @elseif(auth()->user()->role == 'Accreditor')
-        <li><a href="{{ route('documents.view.page') }}" class="block py-2 hover:bg-blue-100 px-2 rounded">📂 View Documents</a></li>
-
-        <li><a href="{{ route('reports.evaluation') }}" class="block py-2 hover:bg-blue-100 px-2 rounded">📜 Evaluation Reports</a></li>            
-        <li><a href="{{ route('user.management') }}" class="block py-2 hover:bg-blue-100 px-2 rounded">👤 User Management</a></li>
+                <li><a href="{{ route('documents.view.page') }}" class="flex items-center py-2 hover:bg-white/10 px-2 rounded transition-colors duration-150">
+                    <span class="mr-2">📂</span>
+                    <span>View Documents</span>
+                </a></li>
+                <li><a href="{{ route('reports.evaluation') }}" class="flex items-center py-2 hover:bg-white/10 px-2 rounded transition-colors duration-150">
+                    <span class="mr-2">📜</span>
+                    <span>Evaluation Reports</span>
+                </a></li>            
+                <li><a href="{{ route('user.management') }}" class="flex items-center py-2 hover:bg-white/10 px-2 rounded transition-colors duration-150">
+                    <span class="mr-2">👤</span>
+                    <span>User Management</span>
+                </a></li>
 
         @elseif(auth()->user()->role == 'Area Chair')
-        <li><a href="{{ route('area.upload') }}" class="block py-2 hover:bg-blue-100 px-2 rounded">📤 Upload Area Documents</a></li>            
-        <li><a href="{{ route('documents.view.page') }}" class="block py-2 hover:bg-blue-100 px-2 rounded">📂 View Documents</a></li>
-        <li><a href="{{ route('faculty.management') }}" class="block py-2 hover:bg-blue-100 px-2 rounded">👤 Faculty Management</a></li>
+                <li><a href="{{ route('area.upload') }}" class="flex items-center py-2 hover:bg-white/10 px-2 rounded transition-colors duration-150">
+                    <span class="mr-2">📤</span>
+                    <span>Upload Area Documents</span>
+                </a></li>            
+                <li><a href="{{ route('documents.view.page') }}" class="flex items-center py-2 hover:bg-white/10 px-2 rounded transition-colors duration-150">
+                    <span class="mr-2">📂</span>
+                    <span>View Documents</span>
+                </a></li>
+                <li><a href="{{ route('my.documents.approved') }}" class="flex items-center py-2 hover:bg-white/10 px-2 rounded transition-colors duration-150">
+                    <span class="mr-2">✅</span>
+                    <span>Approved Documents</span>
+                </a></li>
+                <li><a href="{{ route('my.documents.rejected') }}" class="flex items-center py-2 hover:bg-white/10 px-2 rounded transition-colors duration-150">
+                    <span class="mr-2">❌</span>
+                    <span>Rejected Documents</span>
+                </a></li>
+                <li><a href="{{ route('faculty.management') }}" class="flex items-center py-2 hover:bg-white/10 px-2 rounded transition-colors duration-150">
+                    <span class="mr-2">👤</span>
+                    <span>Faculty Management</span>
+                </a></li>
 
         @elseif(auth()->user()->role == 'Area Member')
-        <li><a href="{{ route('area.draft-upload') }}" class="block py-2 hover:bg-blue-100 px-2 rounded">📤 Upload Draft Documents</a></li>    
-        <li><a href="{{ route('documents.view.page') }}" class="block py-2 hover:bg-blue-100 px-2 rounded">📂 View Documents</a></li>
-       
+                <li><a href="{{ route('documents.view.page') }}" class="flex items-center py-2 hover:bg-white/10 px-2 rounded transition-colors duration-150">
+                    <span class="mr-2">📂</span>
+                    <span>View Documents</span>
+                </a></li>
+                <li><a href="{{ route('my.documents.approved') }}" class="flex items-center py-2 hover:bg-white/10 px-2 rounded transition-colors duration-150">
+                    <span class="mr-2">✅</span>
+                    <span>Approved Documents</span>
+                </a></li>
+                <li><a href="{{ route('my.documents.rejected') }}" class="flex items-center py-2 hover:bg-white/10 px-2 rounded transition-colors duration-150">
+                    <span class="mr-2">❌</span>
+                    <span>Rejected Documents</span>
+                </a></li>
         @endif
     </ul>
 
-    <hr class="my-4 border-blue-300">
+        <hr class="my-4 border-white/20">
 
-    <h3 class="text-md font-semibold mb-2">Programs</h3>
-    <ul>
+        <h3 class="text-md font-semibold mb-2 text-white/90">Programs</h3>
+        <ul class="space-y-1">
         @forelse($departments as $department)
             <li>
-                <button onclick="toggleSubtopics('{{ $department->id }}')" class="w-full text-left block py-2 hover:bg-blue-100 px-2 rounded">
-                    📁 {{ $department->name }}
+                    <button onclick="toggleSubtopics('{{ $department->id }}')" class="w-full text-left flex items-center py-2 hover:bg-white/10 px-2 rounded transition-colors duration-150">
+                        <span class="mr-2">📁</span>
+                        <span>{{ $department->name }}</span>
                 </button>
 
-                <ul id="subtopics-{{ $department->id }}" class="hidden ml-4">
+                    <ul id="subtopics-{{ $department->id }}" class="hidden ml-4 space-y-1">
                     @forelse($department->subtopics as $subtopic)
-                        <li class="flex justify-between items-center">
-                            <a href="{{ route('subtopics.show', $subtopic->id) }}" class="block py-1 px-2 text-sm hover:bg-blue-100 rounded">
-                                📄 {{ $subtopic->name }}
+                            <li class="flex justify-between items-center py-1">
+                                <a href="{{ route('subtopics.show', $subtopic->id) }}" class="flex-1 flex items-center px-2 text-sm hover:bg-white/10 rounded transition-colors duration-150">
+                                    <span class="mr-2">📄</span>
+                                    <span>{{ $subtopic->name }}</span>
                             </a>
 
                             @if(in_array(auth()->user()->role, ['QA', 'Accreditor']))
-                                <div class="flex space-x-2">
-                                    <!-- Edit -->
-                                    <a href="{{ route('subtopics.edit', $subtopic->id) }}" class="text-blue-400 hover:text-blue-600 text-xs">✏️</a>
-                                    <!-- Delete -->
+                                    <div class="flex space-x-2 px-2">
+                                        <a href="{{ route('subtopics.edit', $subtopic->id) }}" class="text-white/80 hover:text-white text-xs">✏️</a>
                                     <form action="{{ route('subtopics.destroy', $subtopic->id) }}" method="POST" onsubmit="return confirm('Are you sure?');">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="text-red-400 hover:text-red-600 text-xs">🗑️</button>
+                                            <button type="submit" class="text-white/80 hover:text-white text-xs">🗑️</button>
                                     </form>
                                 </div>
                             @endif
                         </li>
                     @empty
-                        <li class="text-blue-300 px-2 text-sm">No contents available</li>
+                            <li class="text-white/60 px-2 text-sm">No contents available</li>
                     @endforelse
 
                     @if(in_array(auth()->user()->role, ['QA', 'Accreditor']))
-                        <!-- Add Subtopic -->
                         <form action="{{ route('subtopics.store') }}" method="POST" class="mt-2 px-2">
                             @csrf
                             <input type="hidden" name="department_id" value="{{ $department->id }}">
-                            <input type="text" name="subtopic" class="border rounded p-2 w-full text-blue-600 text-sm" placeholder="Add new..." required>
-                            <button type="submit" class="mt-2 bg-blue-500 text-white px-3 py-1 rounded text-xs">➕ Add</button>
+                                <select name="subtopic" class="w-full p-2 bg-[{{ $royalBlue }}] text-white rounded border border-white/20 text-sm mb-2 focus:outline-none focus:ring-2 focus:ring-white [&>option]:bg-[{{ $royalBlue }}] [&>option]:text-white hover:[&>option]:bg-[{{ $royalBlue }}]/80" required>
+                                    <option value="">Select Area...</option>
+                                    <option value="Area I: Vision, Mission, Goals and Objectives">Area I: Vision, Mission, Goals and Objectives</option>
+                                    <option value="AREA II: FACULTY">AREA II: FACULTY</option>
+                                    <option value="AREA III: CURRICULUM AND INSTRUCTIONS">AREA III: CURRICULUM AND INSTRUCTIONS</option>
+                                    <option value="AREA IV: SUPPORT TO STUDENTS">AREA IV: SUPPORT TO STUDENTS</option>
+                                    <option value="AREA V: RESEARCH">AREA V: RESEARCH</option>
+                                    <option value="AREA VI: EXTENSION AND COMMUNITY INVOLVEMENT">AREA VI: EXTENSION AND COMMUNITY INVOLVEMENT</option>
+                                    <option value="Area VII: Research Agenda and Priorities">Area VII: Research Agenda and Priorities</option>
+                                    <option value="Area VIII: Campus and Site">Area VIII: Campus and Site</option>
+                                    <option value="Area IX: Laboratory Management and Safety">Area IX: Laboratory Management and Safety</option>
+                                    <option value="Area X: Organizational Structure">Area X: Organizational Structure</option>
+                                </select>
+                                <button type="submit" class="w-full bg-white text-[{{ $royalBlue }}] px-3 py-2 rounded text-xs font-semibold hover:bg-white/90 transition-colors duration-150 flex items-center justify-center gap-1">
+                                    <span>➕</span>
+                                    <span>Add Area</span>
+                                </button>
                         </form>
                     @endif
                 </ul>
             </li>
         @empty
-            <li class="text-blue-300 px-2">No departments available</li>
+                <li class="text-white/60 px-2">No departments available</li>
         @endforelse
     </ul>
 
     @if(in_array(auth()->user()->role, ['QA', 'Accreditor']))
-        <!-- Add Department Button -->
-        <a href="{{ route('departments.create') }}" class="block mt-4 bg-blue-500 text-white px-3 py-2 rounded text-center">
+            <a href="{{ route('departments.create') }}" class="block mt-4 bg-[{{ $goldenBrown }}] text-white px-3 py-2 rounded text-center hover:bg-opacity-90 transition-colors duration-150">
             ➕ Add Programs
         </a>
     @endif
+    </div>
 </div>
 
-<!-- JavaScript to Toggle Subtopics -->
 <script>
     function toggleSubtopics(departmentId) {
         let subtopicList = document.getElementById("subtopics-" + departmentId);

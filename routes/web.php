@@ -11,6 +11,8 @@ use App\Http\Controllers\SubtopicController;
 use App\Http\Controllers\FolderController;
 use App\Http\Controllers\QAController;
 use App\Http\Controllers\UserManagementController;
+use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\EvaluationController;
 
 Route::get('/google-drive/folder/{id}', [GoogleDriveController::class, 'getFolderContents']);
 
@@ -24,21 +26,22 @@ Route::view('/reports/evaluation', 'reports.evaluation')->name('reports.evaluati
 // Upload Area Documents (Area Chair)
 Route::view('/area/upload', 'area.upload')->name('area.upload');
 
-// Upload Draft Documents (Area Member)
-Route::view('/area/draft-upload', 'area.draft-upload')->name('area.draft-upload');
-
+// Remove draft-upload route and keep the next route
 Route::get('/reports/accreditation', function () {
     return view('reports.accreditation');
 })->name('reports.accreditation');
-
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/faculty-management', [UserManagementController::class, 'manageFaculty'])
         ->name('faculty.management');
     Route::post('/faculty-management', [UserManagementController::class, 'storeFaculty'])->name('faculty.store');
     Route::get('/faculty-management/{user}/edit', [UserManagementController::class, 'edit'])->name('faculty.edit');
-    Route::put('/faculty-management/{user}', [UserManagementController::class, 'update'])->name('faculty.update');
+    Route::put('/faculty-management/{user}', [UserManagementController::class, 'updateFaculty'])->name('faculty.update');
     Route::delete('/faculty-management/{user}', [UserManagementController::class, 'destroy'])->name('faculty.destroy');
+
+    // Area Chair and Area Member document routes
+    Route::get('/my-documents/approved', [DocumentController::class, 'myApprovedDocuments'])->name('my.documents.approved');
+    Route::get('/my-documents/rejected', [DocumentController::class, 'myRejectedDocuments'])->name('my.documents.rejected');
 });
 
 
@@ -118,6 +121,7 @@ Route::put('/subtopics/{id}', [SubtopicController::class, 'update'])->name('subt
 Route::delete('/subtopics/{id}', [SubtopicController::class, 'destroy'])->name('subtopics.destroy');
 
 //department
+Route::get('/departments', [DepartmentController::class, 'index'])->name('departments.index');
 Route::get('/departments/create', [DepartmentController::class, 'create'])->name('departments.create');
 Route::post('/departments', [DepartmentController::class, 'store'])->name('departments.store');
 Route::get('/departments/{id}', [DepartmentController::class, 'show'])->name('department.view');
@@ -180,5 +184,22 @@ Route::middleware('auth')->group(function () {
 Route::get('/qa/google-drive', [GoogleDriveController::class, 'index'])->name('qa.google-drive');
 Route::get('/qa/google-drive/search', [GoogleDriveController::class, 'search'])->name('qa.google-drive.search');
 
+// Notification Routes
+Route::middleware(['auth'])->group(function () {
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('/notifications/unread-count', [NotificationController::class, 'getUnreadCount'])->name('notifications.unread-count');
+    Route::post('/notifications/{id}/mark-as-read', [NotificationController::class, 'markAsRead'])->name('notifications.mark-as-read');
+    Route::post('/notifications/mark-all-as-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.mark-all-as-read');
+});
+
 // Import Laravel Authentication Routes
 require __DIR__.'/auth.php';
+
+// Evaluation Reports Routes
+Route::middleware(['auth'])->group(function () {
+    Route::get('/reports/evaluation', [EvaluationController::class, 'index'])->name('reports.evaluation');
+    Route::post('/reports/evaluation', [EvaluationController::class, 'store'])->name('reports.evaluation.store');
+    Route::get('/reports/evaluation/{evaluation}/edit', [EvaluationController::class, 'edit'])->name('reports.evaluation.edit');
+    Route::put('/reports/evaluation/{evaluation}', [EvaluationController::class, 'update'])->name('reports.evaluation.update');
+    Route::delete('/reports/evaluation/{evaluation}', [EvaluationController::class, 'destroy'])->name('reports.evaluation.destroy');
+});

@@ -8,25 +8,25 @@ $goldenBrown = '#b87a3d';
     <div class="bg-white border-b">
         <div class="max-w-7xl mx-auto py-3 px-4 sm:px-6 lg:px-8">
             <div class="flex items-center space-x-3">
-                <svg class="w-6 h-6 text-[{{ $royalBlue }}]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                <svg class="w-6 h-6 text-[{{ $goldenBrown }}]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                 </svg>
-                <h1 class="text-xl font-semibold text-gray-900">Rejected Documents at PSU San Carlos</h1>
+                <h1 class="text-xl font-semibold text-[{{ $royalBlue }}]">Rejected Documents</h1>
             </div>
         </div>
     </div>
 
-    <div class="min-h-screen bg-gray-50 py-8">
+    <div class="min-h-screen bg-gradient-to-br from-[{{ $royalBlue }}]/5 to-white py-8">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <!-- Search and Filter Section -->
-            <div class="mb-6 bg-white rounded-lg shadow-sm p-4 border border-gray-200">
+            <div class="mb-6 bg-white rounded-lg shadow-sm p-4 border border-[{{ $royalBlue }}]/10">
                 <div class="flex flex-col md:flex-row gap-4">
                     <!-- Search -->
                     <div class="flex-1">
                         <form method="GET" action="{{ request()->url() }}" id="filterForm" class="flex flex-col md:flex-row gap-4">
                             <div class="flex-1">
                                 <input type="text" name="search" value="{{ request('search') }}" 
-                                    placeholder="Search by title, category or uploader..." 
+                                    placeholder="Search by title or folder..." 
                                     class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-[{{ $royalBlue }}] focus:border-[{{ $royalBlue }}] outline-none">
                             </div>
                             <!-- Filters -->
@@ -37,7 +37,7 @@ $goldenBrown = '#b87a3d';
                                     <option value="docx" {{ request('file_type') == 'docx' ? 'selected' : '' }}>DOCX</option>
                                     <option value="xlsx" {{ request('file_type') == 'xlsx' ? 'selected' : '' }}>XLSX</option>
                                 </select>
-                                <input type="date" name="created_at" value="{{ request('created_at') }}" 
+                                <input type="date" name="date" value="{{ request('date') }}" 
                                     class="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-[{{ $royalBlue }}] focus:border-[{{ $royalBlue }}] outline-none">
                             </div>
                         </form>
@@ -46,60 +46,63 @@ $goldenBrown = '#b87a3d';
             </div>
 
             <!-- Documents Table -->
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+            <div class="bg-white rounded-xl shadow-md overflow-hidden border border-[{{ $royalBlue }}]/10">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-[{{ $royalBlue }}]">
                         <tr>
                             <th class="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">Title</th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">Category</th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">Uploaded By</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">Folder</th>
                             <th class="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">File Type</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">Rejected By</th>
                             <th class="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">Rejected Date</th>
                             <th class="px-6 py-4 text-center text-xs font-semibold text-white uppercase tracking-wider">Actions</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
-                        @forelse($documents as $document)
+                        @forelse($documents as $doc)
                             <tr class="hover:bg-gray-50 transition-colors duration-150">
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm font-medium text-gray-900">{{ $document->title }}</div>
+                                <td class="px-6 py-4">
+                                    <div class="text-sm font-medium text-gray-900">{{ $doc->title }}</div>
+                                    @if($doc->rejection_reason)
+                                        <div class="text-xs text-[{{ $goldenBrown }}] mt-1">
+                                            Reason: {{ $doc->rejection_reason }}
+                                        </div>
+                                    @endif
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-gray-500">{{ $document->category ?? 'N/A' }}</div>
+                                <td class="px-6 py-4">
+                                    <div class="text-sm text-gray-500">{{ $doc->folder->name ?? 'N/A' }}</div>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-gray-500">{{ $document->uploader->name ?? 'Unknown' }}</div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
+                                <td class="px-6 py-4">
                                     <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-[{{ $goldenBrown }}]/10 text-[{{ $goldenBrown }}]">
-                                        {{ strtoupper($document->file_type) }}
+                                        {{ strtoupper($doc->file_type) }}
                                     </span>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {{ $document->created_at ? \Carbon\Carbon::parse($document->created_at)->format('M d, Y') : 'N/A' }}
+                                <td class="px-6 py-4">
+                                    <div class="text-sm text-gray-500">{{ $doc->approver->name ?? 'Unknown' }}</div>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-center">
-                                    <div class="flex items-center justify-center space-x-2">
-                                        <a href="{{ asset('storage/' . $document->file_path) }}" target="_blank"
-                                            class="bg-[{{ $royalBlue }}] text-white px-3 py-1.5 rounded-lg hover:bg-opacity-90 transition-colors duration-200 inline-flex items-center">
-                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                                            </svg>
-                                            View
-                                        </a>
-                                    </div>
+                                <td class="px-6 py-4 text-sm text-gray-500">
+                                    {{ $doc->approved_at ? \Carbon\Carbon::parse($doc->approved_at)->format('M d, Y') : 'N/A' }}
+                                </td>
+                                <td class="px-6 py-4 text-center">
+                                    <a href="{{ asset('storage/' . $doc->file_path) }}" target="_blank"
+                                        class="bg-[{{ $royalBlue }}] text-white px-3 py-1.5 rounded-lg hover:bg-opacity-90 transition-colors duration-200 inline-flex items-center">
+                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                        </svg>
+                                        View
+                                    </a>
                                 </td>
                             </tr>
                         @empty
                             <tr>
                                 <td colspan="6" class="px-6 py-10 text-center text-gray-500">
                                     <div class="flex flex-col items-center justify-center">
-                                        <svg class="w-12 h-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                        <svg class="w-12 h-12 text-[{{ $goldenBrown }}] mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                         </svg>
-                                        <p class="text-lg font-medium">No rejected documents found</p>
-                                        <p class="text-sm text-gray-400">Rejected documents will appear here</p>
+                                        <p class="text-lg font-medium text-[{{ $royalBlue }}]">No rejected documents found</p>
+                                        <p class="text-sm text-gray-400">Your rejected documents will appear here</p>
                                     </div>
                                 </td>
                             </tr>
@@ -109,11 +112,11 @@ $goldenBrown = '#b87a3d';
             </div>
 
             <!-- Pagination -->
-            @if(method_exists($documents, 'hasPages') && $documents->hasPages())
+            @if($documents->hasPages())
                 <div class="mt-4">
                     {{ $documents->links() }}
                 </div>
             @endif
         </div>
     </div>
-</x-app-layout>
+</x-app-layout> 

@@ -12,7 +12,7 @@ class UserManagementController extends Controller
     // Display users
     public function index()
     {
-        $users = User::all();
+        $users = User::paginate(5);
         return view('management.user_management', compact('users'));
     }
 
@@ -111,5 +111,32 @@ class UserManagementController extends Controller
         ]);
 
         return redirect()->route('faculty.management')->with('success', 'Faculty member added.');
+    }
+
+    // Update faculty member data
+    public function updateFaculty(Request $request, User $user)
+    {
+        if (Auth::user()->role !== 'Area Chair') {
+            abort(403, 'Unauthorized.');
+        }
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $user->id,
+            'password' => 'nullable|string|min:6',
+        ]);
+
+        $data = [
+            'name' => $request->name,
+            'email' => $request->email,
+        ];
+
+        if ($request->filled('password')) {
+            $data['password'] = bcrypt($request->password);
+        }
+
+        $user->update($data);
+
+        return redirect()->route('faculty.management')->with('success', 'Faculty member updated successfully.');
     }
 }

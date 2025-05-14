@@ -10,7 +10,7 @@ class Subtopic extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['department_id', 'name'];
+    protected $fillable = ['department_id', 'name', 'has_generated_folders'];
 
     public function department()
     {

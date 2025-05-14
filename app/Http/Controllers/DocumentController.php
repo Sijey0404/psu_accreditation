@@ -10,11 +10,13 @@ use App\Models\Folder;
 use Illuminate\Support\Facades\Storage;
 use App\Services\GoogleDriveService;
 use App\Models\User; // ✅ Added to fetch user names
+use App\Models\Notification;
 
 class DocumentController extends Controller
 {
     public function store(Request $request)
     {
+        try {
         $request->validate([
             'subtopic_id' => 'required|exists:subtopics,id',
             'folder_id' => 'required|exists:folders,id',
@@ -34,7 +36,7 @@ class DocumentController extends Controller
 
         $status = in_array($user->role, ['QA', 'Accreditor']) ? 'approved' : 'pending';
 
-        Document::create([
+            $document = Document::create([
             'user_id' => $user->id,
             'uploaded_by' => $user->id,
             'subtopic_id' => $request->subtopic_id,
@@ -48,7 +50,34 @@ class DocumentController extends Controller
             'drive_id' => $googleDriveId,
         ]);
 
+            // Create notification for QA and Accreditor
+            if (in_array($user->role, ['Area Member', 'Area Chair'])) {
+                try {
+                    Notification::create([
+                        'user_id' => $user->id,
+                        'type' => 'file_upload',
+                        'message' => $user->name . ' uploaded a document to "' . $folder->name . '". Check it out for accreditation.',
+                        'link' => '/documents/' . $document->id,
+                        'notified_roles' => ['QA', 'Accreditor'],
+                        'is_read' => false,
+                        'data' => [
+                            'document_id' => $document->id,
+                            'folder_id' => $folder->id,
+                            'folder_name' => $folder->name,
+                            'uploader_role' => $user->role
+                        ]
+                    ]);
+                } catch (\Exception $e) {
+                    \Log::error('Failed to create notification: ' . $e->getMessage());
+                    // Don't throw the error, just log it and continue
+                }
+            }
+
         return back()->with('success', 'Document uploaded successfully.');
+        } catch (\Exception $e) {
+            \Log::error('Document upload failed: ' . $e->getMessage());
+            return back()->with('error', 'Failed to upload document. Please try again.');
+        }
     }
 
     public function pending()
@@ -71,58 +100,133 @@ class DocumentController extends Controller
     {
         $user = Auth::user();
         if (!in_array($user->role, ['QA', 'Accreditor'])) {
-            return back()->with('error', 'Unauthorized access.');
+            return response()->json(['success' => false, 'message' => 'Unauthorized access.'], 403);
         }
 
-        $document = Document::findOrFail($id);
+        try {
+            $document = Document::with(['uploader', 'folder'])->findOrFail($id);
+            $feedback = request('feedback');
+            
+            // Upload to Google Drive
+            $drive = new GoogleDriveService();
+            $filePath = storage_path('app/public/' . $document->file_path);
+            $fileName = basename($document->file_path);
+            $folderId = $document->folder->drive_id;
 
+            try {
+                $driveLink = $drive->uploadFile($filePath, $fileName, $folderId);
+                
+                // Update document with approval details and Google Drive link
         $document->update([
             'status' => 'approved',
             'approved_by' => $user->id,
             'approved_at' => now(),
-        ]);
+                    'approval_feedback' => $feedback,
+                    'drive_link' => $driveLink
+                ]);
 
-        try {
-            if ($document->folder_id) {
-                $folder = Folder::findOrFail($document->folder_id);
-
-                if ($folder && $folder->drive_id) {
-                    $driveService = new GoogleDriveService();
-                    $filePath = storage_path('app/public/' . $document->file_path);
-                    $fileName = $document->title . '.' . $document->file_type;
-
-                    $driveLink = $driveService->uploadFile($filePath, $fileName, $folder->drive_id);
-
-                    $document->update([
-                        'drive_link' => $driveLink,
+                // Create notification for document uploader
+                if (in_array($document->uploader->role, ['Area Member', 'Area Chair'])) {
+                    Notification::create([
+                        'user_id' => $document->uploader->id,
+                        'type' => 'document_approved',
+                        'message' => $user->name . ' has approved your "' . $document->folder->name . '" file. It has been uploaded to Google Drive.',
+                        'link' => $driveLink,
+                        'is_read' => false,
+                        'notified_roles' => ['Area Member', 'Area Chair'],
+                        'data' => [
+                            'document_id' => $document->id,
+                            'document_title' => $document->title,
+                            'folder_name' => $document->folder->name,
+                            'status' => 'approved',
+                            'feedback' => $feedback,
+                            'approver_name' => $user->name,
+                            'drive_link' => $driveLink
+                        ]
                     ]);
                 }
-            }
-        } catch (\Exception $e) {
-            \Log::error('Google Drive Upload Error: ' . $e->getMessage());
-            return back()->with('error', 'Document approved but failed to upload to Google Drive.');
-        }
 
-        return back()->with('success', 'Document approved and uploaded to Google Drive.');
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Document approved and uploaded to Google Drive successfully',
+                    'feedback' => $feedback,
+                    'drive_link' => $driveLink
+                ]);
+
+            } catch (\Exception $e) {
+                \Log::error('Google Drive upload failed: ' . $e->getMessage());
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to upload to Google Drive: ' . $e->getMessage()
+                ], 500);
+                }
+
+        } catch (\Exception $e) {
+            \Log::error('Document approval failed: ' . $e->getMessage());
+            return response()->json([
+                'success' => false, 
+                'message' => 'Failed to approve document: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
-    public function reject(Request $request, $id)
+    public function reject($id)
     {
-        $request->validate([]);
-
         $user = Auth::user();
         if (!in_array($user->role, ['QA', 'Accreditor'])) {
-            return back()->with('error', 'Unauthorized access.');
+            return response()->json(['success' => false, 'message' => 'Unauthorized access.'], 403);
         }
 
-        $document = Document::findOrFail($id);
+        $reason = request('reason');
+        if (empty($reason)) {
+            return response()->json(['success' => false, 'message' => 'Rejection reason is required.'], 422);
+        }
+
+        try {
+            $document = Document::with(['uploader', 'folder'])->findOrFail($id);
+            
+            // Update document with rejection details
         $document->update([
             'status' => 'rejected',
+                'rejection_reason' => $reason,
             'approved_by' => $user->id,
             'approved_at' => now(),
-        ]);
+                'drive_link' => null // Clear any existing drive link
+            ]);
 
-        return back()->with('success', 'Document rejected.');
+            // Create notification for document uploader
+            if (in_array($document->uploader->role, ['Area Member', 'Area Chair'])) {
+                Notification::create([
+                    'user_id' => $document->uploader->id,
+                    'type' => 'document_rejected',
+                    'message' => $user->name . ' has rejected your "' . $document->folder->name . '" file. Please check the rejection reason and resubmit.',
+                    'link' => '/my-documents/rejected',
+                    'is_read' => false,
+                    'notified_roles' => ['Area Member', 'Area Chair'],
+                    'data' => [
+                        'document_id' => $document->id,
+                        'document_title' => $document->title,
+                        'folder_name' => $document->folder->name,
+                        'status' => 'rejected',
+                        'rejection_reason' => $reason,
+                        'rejector_name' => $user->name
+                    ]
+                ]);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Document rejected successfully',
+                'reason' => $reason
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('Document rejection failed: ' . $e->getMessage());
+            return response()->json([
+                'success' => false, 
+                'message' => 'Failed to reject document: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     // ✅ Updated this function to use filtering like approved documents
@@ -262,5 +366,83 @@ class DocumentController extends Controller
     $documents = $query->with('uploader')->latest()->get();
 
     return view('documents.rejected', compact('documents'));
+}
+
+    public function myApprovedDocuments(Request $request)
+    {
+        $user = auth()->user();
+        
+        if (!in_array($user->role, ['Area Chair', 'Area Member'])) {
+            return redirect()->back()->with('error', 'Unauthorized access.');
+        }
+
+        $query = Document::with(['uploader', 'folder', 'approver'])
+            ->where('uploaded_by', $user->id)
+            ->where('status', 'approved');
+
+        // Apply search filter
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function($q) use ($search) {
+                $q->where('title', 'like', "%$search%")
+                  ->orWhere('category', 'like', "%$search%")
+                  ->orWhereHas('folder', function($q2) use ($search) {
+                      $q2->where('name', 'like', "%$search%");
+                  });
+            });
+        }
+
+        // Apply date filter
+        if ($request->filled('date')) {
+            $query->whereDate('approved_at', $request->input('date'));
+        }
+
+        // Apply file type filter
+        if ($request->filled('file_type')) {
+            $query->where('file_type', $request->input('file_type'));
+        }
+
+        $documents = $query->latest('approved_at')->paginate(10);
+        
+        return view('documents.my-approved', compact('documents'));
+    }
+
+    public function myRejectedDocuments(Request $request)
+    {
+        $user = auth()->user();
+        
+        if (!in_array($user->role, ['Area Chair', 'Area Member'])) {
+            return redirect()->back()->with('error', 'Unauthorized access.');
+        }
+
+        $query = Document::with(['uploader', 'folder', 'approver'])
+            ->where('uploaded_by', $user->id)
+            ->where('status', 'rejected');
+
+        // Apply search filter
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function($q) use ($search) {
+                $q->where('title', 'like', "%$search%")
+                  ->orWhere('category', 'like', "%$search%")
+                  ->orWhereHas('folder', function($q2) use ($search) {
+                      $q2->where('name', 'like', "%$search%");
+                  });
+            });
+        }
+
+        // Apply date filter
+        if ($request->filled('date')) {
+            $query->whereDate('approved_at', $request->input('date'));
+        }
+
+        // Apply file type filter
+        if ($request->filled('file_type')) {
+            $query->where('file_type', $request->input('file_type'));
+        }
+
+        $documents = $query->latest('approved_at')->paginate(10);
+        
+        return view('documents.my-rejected', compact('documents'));
 }
 }

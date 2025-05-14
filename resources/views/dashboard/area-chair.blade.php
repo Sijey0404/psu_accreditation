@@ -1,17 +1,22 @@
+<?php
+$royalBlue = '#1a237e';
+$goldenBrown = '#b87a3d';
+?>
+
 <x-app-layout>
-    <div class="bg-gradient-to-br from-blue-50 to-white min-h-screen py-10">
+    <div class="bg-gradient-to-br from-[{{ $royalBlue }}]/5 to-white min-h-screen py-10">
         <div class="max-w-7xl mx-auto px-6 sm:px-10">
             <div class="mb-10">
-                <h1 class="text-4xl font-extrabold text-blue-900 mb-2">🎓 PSU-SCC Accreditation Portal</h1>
-                <p class="text-lg text-gray-600">
-                    Welcome, <span class="font-semibold text-blue-700">Area Chair</span>! You're entrusted with leading your area’s accreditation efforts.
+                <h1 class="text-4xl font-extrabold text-[{{ $royalBlue }}] mb-2">🎓 PSU-SCC Accreditation Portal</h1>
+                <p class="text-lg text-gray-700">
+                    Welcome, <span class="font-semibold text-[{{ $royalBlue }}]">Area Chair</span>! You're entrusted with leading your area's accreditation efforts.
                 </p>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <!-- Accreditation Info -->
-                <div class="lg:col-span-2 bg-white shadow-md rounded-2xl p-8 border border-blue-100">
-                    <h2 class="text-2xl font-semibold text-blue-800 mb-4">🏛 About PSU-SCC Accreditation</h2>
+                <div class="lg:col-span-2 bg-white shadow-md rounded-2xl p-8 border border-[{{ $royalBlue }}]/10">
+                    <h2 class="text-2xl font-semibold text-[{{ $royalBlue }}] mb-4">🏛 About PSU-SCC Accreditation</h2>
                     <p class="text-gray-700 leading-relaxed text-justify">
                         Pangasinan State University – San Carlos Campus (PSU-SCC) is committed to excellence in education and institutional quality. 
                         Through AACCUP accreditation, our university undergoes rigorous assessment in areas such as instruction, research, 
@@ -20,8 +25,8 @@
                 </div>
 
                 <!-- Quick Role Overview -->
-                <div class="bg-blue-50 shadow-md rounded-2xl p-6 border border-blue-100">
-                    <h3 class="text-xl font-semibold text-blue-700 mb-3">👤 Area Chair Responsibilities</h3>
+                <div class="bg-[{{ $royalBlue }}]/5 shadow-md rounded-2xl p-6 border border-[{{ $royalBlue }}]/10">
+                    <h3 class="text-xl font-semibold text-[{{ $royalBlue }}] mb-3">👤 Area Chair Responsibilities</h3>
                     <ul class="list-disc list-inside text-gray-700 space-y-2">
                         <li>Lead document preparation for your assigned area.</li>
                         <li>Coordinate with Area Members and QA Officers.</li>
@@ -32,9 +37,9 @@
                 </div>
 
                 <!-- Guidelines -->
-                <div class="lg:col-span-3 bg-white shadow-md rounded-2xl p-8 border border-blue-100">
-                    <h2 class="text-2xl font-semibold text-blue-800 mb-4">📌 Submission Guidelines</h2>
-                    <ul class="space-y-3 text-gray-700 list-disc list-inside">
+                <div class="lg:col-span-3 bg-gradient-to-r from-[{{ $royalBlue }}] to-[{{ $goldenBrown }}] shadow-md rounded-2xl p-8 text-white">
+                    <h2 class="text-2xl font-semibold mb-4">📌 Submission Guidelines</h2>
+                    <ul class="space-y-3 list-disc list-inside text-white/90">
                         <li>Verify documents submitted by Area Members for compliance and completeness.</li>
                         <li>Use the provided document templates and follow formatting standards.</li>
                         <li>Maintain communication with QA for feedback and revisions.</li>
