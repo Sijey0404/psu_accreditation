@@ -28,8 +28,8 @@ $goldenBrown = '#b87a3d';
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                     </svg>
                     <p class="text-sm font-medium">{{ session('success') }}</p>
-            </div>
-        @endif
+                </div>
+            @endif
 
             <!-- Faculty Table -->
             <div class="bg-white rounded-xl shadow-md overflow-hidden border border-[{{ $royalBlue }}]/10">
@@ -39,8 +39,8 @@ $goldenBrown = '#b87a3d';
                             <th class="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">Faculty Member</th>
                             <th class="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">Email</th>
                             <th class="px-6 py-4 text-center text-xs font-semibold text-white uppercase tracking-wider">Actions</th>
-                </tr>
-            </thead>
+                        </tr>
+                    </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
                         @forelse($users as $user)
                             <tr class="hover:bg-gray-50 transition-colors duration-150">
@@ -67,15 +67,15 @@ $goldenBrown = '#b87a3d';
                                             </svg>
                                         </button>
                                         <form action="{{ route('faculty.destroy', $user->id) }}" method="POST" class="inline-block">
-                                @csrf
-                                @method('DELETE')
+                                            @csrf
+                                            @method('DELETE')
                                             <button type="button" onclick="confirmDelete(this.parentElement)" 
                                                 class="text-red-500 hover:text-red-600 transition-colors duration-200">
                                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                                                 </svg>
                                             </button>
-                            </form>
+                                        </form>
                                     </div>
                                 </td>
                             </tr>
@@ -89,11 +89,11 @@ $goldenBrown = '#b87a3d';
                                         <p class="text-lg font-medium">No faculty members found</p>
                                         <p class="text-sm text-gray-400">Add faculty members to get started</p>
                                     </div>
-                        </td>
-                    </tr>
+                                </td>
+                            </tr>
                         @endforelse
-            </tbody>
-        </table>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>

@@ -33,33 +33,33 @@ $goldenBrown = '#b87a3d';
                             <div class="flex gap-4">
                                 <select name="file_type" class="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-[{{ $royalBlue }}] focus:border-[{{ $royalBlue }}] outline-none">
                                     <option value="">All File Types</option>
-                                    <option value="pdf" {{ request('file_type') == 'pdf' ? 'selected' : '' }}>PDF</option>
-                                    <option value="docx" {{ request('file_type') == 'docx' ? 'selected' : '' }}>DOCX</option>
-                                    <option value="xlsx" {{ request('file_type') == 'xlsx' ? 'selected' : '' }}>XLSX</option>
-                                </select>
+                            <option value="pdf" {{ request('file_type') == 'pdf' ? 'selected' : '' }}>PDF</option>
+                            <option value="docx" {{ request('file_type') == 'docx' ? 'selected' : '' }}>DOCX</option>
+                            <option value="xlsx" {{ request('file_type') == 'xlsx' ? 'selected' : '' }}>XLSX</option>
+                        </select>
                                 <input type="date" name="created_at" value="{{ request('created_at') }}" 
                                     class="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-[{{ $royalBlue }}] focus:border-[{{ $royalBlue }}] outline-none">
-                            </div>
+                    </div>
                         </form>
                     </div>
-                </div>
             </div>
+        </div>
 
             <!-- Documents Table -->
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-[{{ $royalBlue }}]">
-                        <tr>
+                    <tr>
                             <th class="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">Title</th>
                             <th class="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">Category</th>
                             <th class="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">Uploaded By</th>
                             <th class="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">File Type</th>
                             <th class="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">Rejected Date</th>
                             <th class="px-6 py-4 text-center text-xs font-semibold text-white uppercase tracking-wider">Actions</th>
-                        </tr>
-                    </thead>
+                    </tr>
+                </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
-                        @forelse($documents as $document)
+                    @forelse($documents as $document)
                             <tr class="hover:bg-gray-50 transition-colors duration-150">
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="text-sm font-medium text-gray-900">{{ $document->title }}</div>
@@ -74,10 +74,10 @@ $goldenBrown = '#b87a3d';
                                     <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-[{{ $goldenBrown }}]/10 text-[{{ $goldenBrown }}]">
                                         {{ strtoupper($document->file_type) }}
                                     </span>
-                                </td>
+                            </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                     {{ $document->created_at ? \Carbon\Carbon::parse($document->created_at)->format('M d, Y') : 'N/A' }}
-                                </td>
+                            </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-center">
                                     <div class="flex items-center justify-center space-x-2">
                                         <a href="{{ asset('storage/' . $document->file_path) }}" target="_blank"
@@ -89,10 +89,10 @@ $goldenBrown = '#b87a3d';
                                             View
                                         </a>
                                     </div>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
                                 <td colspan="6" class="px-6 py-10 text-center text-gray-500">
                                     <div class="flex flex-col items-center justify-center">
                                         <svg class="w-12 h-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -101,11 +101,11 @@ $goldenBrown = '#b87a3d';
                                         <p class="text-lg font-medium">No rejected documents found</p>
                                         <p class="text-sm text-gray-400">Rejected documents will appear here</p>
                                     </div>
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
             </div>
 
             <!-- Pagination -->

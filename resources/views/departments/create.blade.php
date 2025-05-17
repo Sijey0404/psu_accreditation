@@ -32,7 +32,7 @@ $goldenBrown = '#b87a3d';
 
                 <div class="p-6">
                     <form action="{{ route('departments.store') }}" method="POST" class="space-y-6">
-                        @csrf
+            @csrf
                         
                         <!-- Course Input -->
                         <div>
@@ -51,10 +51,10 @@ $goldenBrown = '#b87a3d';
                                     placeholder="Enter the course name"
                                     value="{{ old('name') }}">
                             </div>
-                            @error('name')
+                @error('name')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
-                        </div>
+                @enderror
+            </div>
 
                         <!-- Department Input -->
                         <div>
@@ -73,10 +73,10 @@ $goldenBrown = '#b87a3d';
                                     placeholder="Enter the department name"
                                     value="{{ old('slug') }}">
                             </div>
-                            @error('slug')
+                @error('slug')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
-                        </div>
+                @enderror
+            </div>
 
                         <!-- Form Actions -->
                         <div class="flex items-center justify-end space-x-3 pt-2">
@@ -90,21 +90,21 @@ $goldenBrown = '#b87a3d';
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
                                 </svg>
                                 Add Program
-                            </button>
-                        </div>
-                    </form>
+                </button>
+            </div>
+        </form>
                 </div>
             </div>
 
             <!-- Success Message -->
-            @if(session('success'))
+        @if(session('success'))
                 <div class="mt-4 p-4 bg-[{{ $goldenBrown }}]/10 text-[{{ $goldenBrown }}] rounded-lg flex items-center justify-center">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                     </svg>
                     <p class="text-sm font-medium">{{ session('success') }}</p>
-                </div>
-            @endif
+            </div>
+        @endif
         </div>
     </div>
 </x-app-layout>

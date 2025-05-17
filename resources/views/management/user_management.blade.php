@@ -7,36 +7,36 @@ $goldenBrown = '#b87a3d';
     <div class="bg-gradient-to-br from-[{{ $royalBlue }}]/5 to-white min-h-screen p-8">
         <div class="max-w-7xl mx-auto">
             <div class="flex justify-between items-center mb-8">
-                <div>
+            <div>
                     <h1 class="text-3xl font-bold text-[{{ $royalBlue }}]">User Management</h1>
                     <p class="text-gray-600">Manage users and their roles in the accreditation system</p>
-                </div>
-                <button 
+            </div>
+            <button 
                     class="bg-[{{ $royalBlue }}] hover:bg-opacity-90 text-white font-semibold py-2.5 px-4 rounded-lg shadow-md transition-all duration-200 flex items-center space-x-2"
-                    onclick="openModal('createUserModal')"
-                >
+                onclick="openModal('createUserModal')"
+            >
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
                     </svg>
                     <span>Create New User</span>
-                </button>
-            </div>
+            </button>
+        </div>
 
-            <!-- User Table -->
+        <!-- User Table -->
             <div class="bg-white rounded-xl shadow-md overflow-hidden border border-[{{ $royalBlue }}]/10">
                 <table class="w-full divide-y divide-gray-200">
                     <thead class="bg-[{{ $royalBlue }}]">
-                        <tr>
+                    <tr>
                             <th class="px-4 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider w-[5%]">ID</th>
                             <th class="px-4 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider w-[25%]">Name</th>
                             <th class="px-4 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider w-[25%]">Email</th>
                             <th class="px-4 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider w-[15%]">Role</th>
                             <th class="px-4 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider w-[15%]">Created At</th>
                             <th class="px-4 py-4 text-center text-xs font-semibold text-white uppercase tracking-wider w-[15%]">Actions</th>
-                        </tr>
-                    </thead>
+                    </tr>
+                </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
-                        @foreach ($users as $user)
+                    @foreach ($users as $user)
                         <tr class="hover:bg-gray-50 transition-colors duration-150">
                             <td class="px-4 py-4 text-sm text-gray-900">{{ $user->id }}</td>
                             <td class="px-4 py-4">
@@ -64,30 +64,30 @@ $goldenBrown = '#b87a3d';
                             </td>
                             <td class="px-4 py-4 text-center">
                                 <div class="flex items-center justify-center space-x-2">
-                                    <button 
+                            <button 
                                         class="bg-[{{ $royalBlue }}] hover:bg-opacity-90 text-white py-1.5 px-3 rounded-lg transition-colors duration-150 flex items-center"
-                                        onclick="openEditModal({{ $user }})"
-                                    >
+                                onclick="openEditModal({{ $user }})"
+                            >
                                         <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                                         </svg>
-                                        Edit
-                                    </button>
-                                    <button 
+                                Edit
+                            </button>
+                            <button 
                                         class="bg-red-500 hover:bg-opacity-90 text-white py-1.5 px-3 rounded-lg transition-colors duration-150 flex items-center"
-                                        onclick="openDeleteModal({{ $user->id }})"
-                                    >
+                                onclick="openDeleteModal({{ $user->id }})"
+                            >
                                         <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                                         </svg>
-                                        Delete
-                                    </button>
+                                Delete
+                            </button>
                                 </div>
-                            </td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
 
                 <!-- Pagination -->
                 <div class="bg-gray-50 px-6 py-3 border-t border-gray-200">
@@ -186,8 +186,8 @@ $goldenBrown = '#b87a3d';
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
                                 </svg>
                             </button>
-                        </div>
-                    </div>
+                </div>
+                </div>
 
                     <!-- Role Selection -->
                     <div>
@@ -197,13 +197,13 @@ $goldenBrown = '#b87a3d';
                                 <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
                                 </svg>
-                            </div>
+                </div>
                             <select name="role" required 
                                 class="pl-10 w-full border border-gray-300 rounded-lg py-2.5 focus:ring-2 focus:ring-[{{ $royalBlue }}] focus:border-[{{ $royalBlue }}] transition-colors duration-200 appearance-none bg-white">
                                 <option value="">Select a role...</option>
-                                <option value="Area Member">Area Member</option>
-                                <option value="Area Chair">Area Chair</option>
-                            </select>
+                        <option value="Area Member">Area Member</option>
+                        <option value="Area Chair">Area Chair</option>
+                    </select>
                             <div class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
                                 <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
@@ -257,7 +257,7 @@ $goldenBrown = '#b87a3d';
                         <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
                         <input type="email" name="email" id="editUserEmail" required 
                             class="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-[{{ $goldenBrown }}]/20 focus:border-[{{ $goldenBrown }}] transition-colors duration-200" />
-                    </div>
+                </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">
                             Password 
@@ -277,18 +277,18 @@ $goldenBrown = '#b87a3d';
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
                                 </svg>
                             </button>
-                        </div>
-                    </div>
+                </div>
+                </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Role</label>
                         <select name="role" id="editUserRole" required 
                             class="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-[{{ $goldenBrown }}]/20 focus:border-[{{ $goldenBrown }}] transition-colors duration-200">
-                            <option value="QA">QA</option>
-                            <option value="Area Member">Area Member</option>
-                            <option value="Area Chair">Area Chair</option>
-                            <option value="Accreditor">Accreditor</option>
-                        </select>
-                    </div>
+                        <option value="QA">QA</option>
+                        <option value="Area Member">Area Member</option>
+                        <option value="Area Chair">Area Chair</option>
+                        <option value="Accreditor">Accreditor</option>
+                    </select>
+                </div>
                 </div>
                 <div class="flex justify-end space-x-2 mt-8">
                     <button type="button" 
@@ -316,9 +316,9 @@ $goldenBrown = '#b87a3d';
                 </div>
                 <h2 class="text-2xl font-bold text-gray-900 mb-2">Delete User</h2>
                 <p class="text-gray-500 mb-6">Are you sure you want to delete this user? This action cannot be undone.</p>
-                <form id="deleteUserForm" method="POST">
-                    @csrf
-                    @method('DELETE')
+            <form id="deleteUserForm" method="POST">
+                @csrf
+                @method('DELETE')
                     <div class="flex justify-center space-x-3">
                         <button type="button" 
                             class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors duration-200" 
@@ -329,8 +329,8 @@ $goldenBrown = '#b87a3d';
                             class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-opacity-90 transition-colors duration-200">
                             Delete User
                         </button>
-                    </div>
-                </form>
+                </div>
+            </form>
             </div>
         </div>
     </div>

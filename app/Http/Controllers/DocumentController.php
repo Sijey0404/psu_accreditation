@@ -107,59 +107,39 @@ class DocumentController extends Controller
             $document = Document::with(['uploader', 'folder'])->findOrFail($id);
             $feedback = request('feedback');
             
-            // Upload to Google Drive
-            $drive = new GoogleDriveService();
-            $filePath = storage_path('app/public/' . $document->file_path);
-            $fileName = basename($document->file_path);
-            $folderId = $document->folder->drive_id;
+            // Update document with approval details
+            $document->update([
+                'status' => 'approved',
+                'approved_by' => $user->id,
+                'approved_at' => now(),
+                'approval_feedback' => $feedback
+            ]);
 
-            try {
-                $driveLink = $drive->uploadFile($filePath, $fileName, $folderId);
-                
-                // Update document with approval details and Google Drive link
-        $document->update([
-            'status' => 'approved',
-            'approved_by' => $user->id,
-            'approved_at' => now(),
-                    'approval_feedback' => $feedback,
-                    'drive_link' => $driveLink
+            // Create notification for document uploader if they are Area Member or Area Chair
+            if (in_array($document->uploader->role, ['Area Member', 'Area Chair'])) {
+                Notification::create([
+                    'user_id' => $document->uploader->id,
+                    'type' => 'document_approved',
+                    'message' => $user->name . ' has approved your "' . $document->folder->name . '" file.',
+                    'link' => '/documents/' . $document->id,
+                    'is_read' => false,
+                    'notified_roles' => ['Area Member', 'Area Chair'],
+                    'data' => [
+                        'document_id' => $document->id,
+                        'document_title' => $document->title,
+                        'folder_name' => $document->folder->name,
+                        'status' => 'approved',
+                        'feedback' => $feedback,
+                        'approver_name' => $user->name
+                    ]
                 ]);
+            }
 
-                // Create notification for document uploader
-                if (in_array($document->uploader->role, ['Area Member', 'Area Chair'])) {
-                    Notification::create([
-                        'user_id' => $document->uploader->id,
-                        'type' => 'document_approved',
-                        'message' => $user->name . ' has approved your "' . $document->folder->name . '" file. It has been uploaded to Google Drive.',
-                        'link' => $driveLink,
-                        'is_read' => false,
-                        'notified_roles' => ['Area Member', 'Area Chair'],
-                        'data' => [
-                            'document_id' => $document->id,
-                            'document_title' => $document->title,
-                            'folder_name' => $document->folder->name,
-                            'status' => 'approved',
-                            'feedback' => $feedback,
-                            'approver_name' => $user->name,
-                            'drive_link' => $driveLink
-                        ]
-                    ]);
-                }
-
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Document approved and uploaded to Google Drive successfully',
-                    'feedback' => $feedback,
-                    'drive_link' => $driveLink
-                ]);
-
-            } catch (\Exception $e) {
-                \Log::error('Google Drive upload failed: ' . $e->getMessage());
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Failed to upload to Google Drive: ' . $e->getMessage()
-                ], 500);
-                }
+            return response()->json([
+                'success' => true,
+                'message' => 'Document approved successfully',
+                'feedback' => $feedback
+            ]);
 
         } catch (\Exception $e) {
             \Log::error('Document approval failed: ' . $e->getMessage());
@@ -184,23 +164,20 @@ class DocumentController extends Controller
 
         try {
             $document = Document::with(['uploader', 'folder'])->findOrFail($id);
-            
-            // Update document with rejection details
-        $document->update([
-            'status' => 'rejected',
+            $document->update([
+                'status' => 'rejected',
                 'rejection_reason' => $reason,
-            'approved_by' => $user->id,
-            'approved_at' => now(),
-                'drive_link' => null // Clear any existing drive link
+                'approved_by' => $user->id,
+                'approved_at' => now()
             ]);
 
-            // Create notification for document uploader
+            // Create notification for document uploader if they are Area Member or Area Chair
             if (in_array($document->uploader->role, ['Area Member', 'Area Chair'])) {
                 Notification::create([
                     'user_id' => $document->uploader->id,
                     'type' => 'document_rejected',
-                    'message' => $user->name . ' has rejected your "' . $document->folder->name . '" file. Please check the rejection reason and resubmit.',
-                    'link' => '/my-documents/rejected',
+                    'message' => $user->name . ' has rejected your "' . $document->folder->name . '" file.',
+                    'link' => '/documents/' . $document->id,
                     'is_read' => false,
                     'notified_roles' => ['Area Member', 'Area Chair'],
                     'data' => [
@@ -444,5 +421,5 @@ class DocumentController extends Controller
         $documents = $query->latest('approved_at')->paginate(10);
         
         return view('documents.my-rejected', compact('documents'));
-}
+    }
 }
