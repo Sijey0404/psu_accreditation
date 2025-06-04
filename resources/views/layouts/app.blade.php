@@ -70,16 +70,16 @@
     </script>
 </head>
 <body class="font-sans antialiased">
-    <div class="min-h-screen bg-gray-100">
+    <div class="min-h-screen bg-gradient-to-br from-[#1a237e]/5 to-[#FFD700]/5">
         <!-- Fixed Navigation Bar -->
-        <div class="fixed top-0 right-0 z-50 bg-white h-14 flex items-center border-b border-gray-100" style="left: 256px;">
+        <div class="fixed top-0 right-0 z-50 bg-gradient-to-r from-[#1a237e] to-[#FFD700] text-white h-14 flex items-center border-b border-white/20" style="left: 256px;">
             <div class="flex justify-end w-full px-2 items-center space-x-4">
                 <!-- Notification Component -->
                 <x-notification-dropdown align="right" width="96" />
                 
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
-                        <button class="inline-flex items-center px-1.5 py-0.5 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
+                        <button class="inline-flex items-center px-1.5 py-0.5 border border-transparent text-sm leading-4 font-medium rounded-md text-white hover:text-white/80 focus:outline-none transition ease-in-out duration-150">
                             <div>{{ Auth::user()->name }}</div>
                             <div class="ms-1">
                                 <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">

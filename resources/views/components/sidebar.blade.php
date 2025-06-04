@@ -2,17 +2,17 @@
 
 <?php
 $royalBlue = '#1a237e';
-$goldenBrown = '#b87a3d';
+$goldenYellow = '#FFD700';
 ?>
 
-<div class="bg-[{{ $royalBlue }}] text-white w-64 h-screen max-h-screen flex-shrink-0 overflow-hidden">
+<div class="bg-gradient-to-br from-[{{ $royalBlue }}] to-[{{ $goldenYellow }}] text-white w-64 h-screen max-h-screen flex-shrink-0 overflow-hidden">
     <!-- Logo and Title Section -->
-    <div class="p-4 bg-gradient-to-r from-[{{ $royalBlue }}] to-[{{ $goldenBrown }}] border-b border-white/10">
+    <div class="p-4 bg-gradient-to-r from-[{{ $royalBlue }}] to-[{{ $goldenYellow }}] border-b border-white/20">
         <div class="flex items-center gap-3">
             <img src="{{ asset('images/logo.png') }}" alt="PSU Logo" class="h-12 w-auto">
             <div class="flex flex-col">
                 <h1 class="text-2xl font-bold text-white">PSU-SCC</h1>
-                <p class="text-sm text-white/80 italic -mt-1">Accreditation Portal</p>
+                <p class="text-sm text-white/90 italic -mt-1">Accreditation Portal</p>
             </div>
         </div>
     </div>
@@ -20,83 +20,86 @@ $goldenBrown = '#b87a3d';
     <!-- Scrollable Content -->
     <div class="overflow-y-auto h-[calc(100vh-5rem)] p-4">
         <ul class="space-y-1">
-            <li><a href="{{ route('dashboard') }}" class="flex items-center py-2 hover:bg-white/10 px-2 rounded transition-colors duration-150">
+            <li><a href="{{ route('dashboard') }}" class="flex items-center py-2 hover:bg-white/20 px-2 rounded transition-colors duration-150">
                 <span class="mr-2">📊</span>
                 <span>Dashboard</span>
             </a></li>
 
-        @if(auth()->user()->role == 'QA')
-                <li><a href="{{ route('qa.pending') }}" class="flex items-center py-2 hover:bg-white/10 px-2 rounded transition-colors duration-150">
+        @if(auth()->user()->role === 'QA')
+                <li><a href="{{ route('qa.pending') }}" class="flex items-center py-2 hover:bg-white/20 px-2 rounded transition-colors duration-150">
                     <span class="mr-2">📂</span>
                     <span>Pending Approvals</span>
                 </a></li>
-                <li><a href="{{ route('qa.approved') }}" class="flex items-center py-2 hover:bg-white/10 px-2 rounded transition-colors duration-150">
+                <li><a href="{{ route('qa.approved') }}" class="flex items-center py-2 hover:bg-white/20 px-2 rounded transition-colors duration-150">
                     <span class="mr-2">✅</span>
                     <span>Approved Documents</span>
                 </a></li>
-                <li><a href="{{ route('qa.rejected') }}" class="flex items-center py-2 hover:bg-white/10 px-2 rounded transition-colors duration-150">
+                <li><a href="{{ route('qa.rejected') }}" class="flex items-center py-2 hover:bg-white/20 px-2 rounded transition-colors duration-150">
                     <span class="mr-2">❌</span>
                     <span>Rejected Documents</span>
                 </a></li>
-                <li><a href="{{ route('user.management') }}" class="flex items-center py-2 hover:bg-white/10 px-2 rounded transition-colors duration-150">
+                <li><a href="{{ route('user.management') }}" class="flex items-center py-2 hover:bg-white/20 px-2 rounded transition-colors duration-150">
                     <span class="mr-2">👤</span>
                     <span>User Management</span>
                 </a></li>
-                <li><a href="{{ route('reports.accreditation') }}" class="flex items-center py-2 hover:bg-white/10 px-2 rounded transition-colors duration-150">
+                <li><a href="{{ route('reports.accreditation') }}" class="flex items-center py-2 hover:bg-white/20 px-2 rounded transition-colors duration-150">
                     <span class="mr-2">📜</span>
                     <span>Accreditation Report</span>
                 </a></li>
-                <li><a href="{{ route('documents.view.page') }}" class="flex items-center py-2 hover:bg-white/10 px-2 rounded transition-colors duration-150">
+                <li><a href="{{ route('documents.view.page') }}" class="flex items-center py-2 hover:bg-white/20 px-2 rounded transition-colors duration-150">
                     <span class="mr-2">📂</span>
                     <span>View Documents</span>
                 </a></li>
+        @endif
 
-        @elseif(auth()->user()->role == 'Accreditor')
-                <li><a href="{{ route('documents.view.page') }}" class="flex items-center py-2 hover:bg-white/10 px-2 rounded transition-colors duration-150">
+        @if(auth()->user()->role === 'Accreditor')
+                <li><a href="{{ route('documents.view.page') }}" class="flex items-center py-2 hover:bg-white/20 px-2 rounded transition-colors duration-150">
                     <span class="mr-2">📂</span>
                     <span>View Documents</span>
                 </a></li>
-                <li><a href="{{ route('reports.evaluation') }}" class="flex items-center py-2 hover:bg-white/10 px-2 rounded transition-colors duration-150">
+                <li><a href="{{ route('reports.evaluation') }}" class="flex items-center py-2 hover:bg-white/20 px-2 rounded transition-colors duration-150">
                     <span class="mr-2">📜</span>
                     <span>Evaluation Reports</span>
                 </a></li>            
-                <li><a href="{{ route('user.management') }}" class="flex items-center py-2 hover:bg-white/10 px-2 rounded transition-colors duration-150">
+                <li><a href="{{ route('user.management') }}" class="flex items-center py-2 hover:bg-white/20 px-2 rounded transition-colors duration-150">
                     <span class="mr-2">👤</span>
                     <span>User Management</span>
                 </a></li>
+        @endif
 
-        @elseif(auth()->user()->role == 'Area Chair')
-                <li><a href="{{ route('area.upload') }}" class="flex items-center py-2 hover:bg-white/10 px-2 rounded transition-colors duration-150">
+        @if(auth()->user()->role === 'Area Chair')
+                <li><a href="{{ route('area.upload') }}" class="flex items-center py-2 hover:bg-white/20 px-2 rounded transition-colors duration-150">
                     <span class="mr-2">📤</span>
                     <span>Upload Area Documents</span>
                 </a></li>            
-                <li><a href="{{ route('documents.view.page') }}" class="flex items-center py-2 hover:bg-white/10 px-2 rounded transition-colors duration-150">
+                <li><a href="{{ route('documents.view.page') }}" class="flex items-center py-2 hover:bg-white/20 px-2 rounded transition-colors duration-150">
                     <span class="mr-2">📂</span>
                     <span>View Documents</span>
                 </a></li>
-                <li><a href="{{ route('my.documents.approved') }}" class="flex items-center py-2 hover:bg-white/10 px-2 rounded transition-colors duration-150">
+                <li><a href="{{ route('my.documents.approved') }}" class="flex items-center py-2 hover:bg-white/20 px-2 rounded transition-colors duration-150">
                     <span class="mr-2">✅</span>
                     <span>Approved Documents</span>
                 </a></li>
-                <li><a href="{{ route('my.documents.rejected') }}" class="flex items-center py-2 hover:bg-white/10 px-2 rounded transition-colors duration-150">
+                <li><a href="{{ route('my.documents.rejected') }}" class="flex items-center py-2 hover:bg-white/20 px-2 rounded transition-colors duration-150">
                     <span class="mr-2">❌</span>
                     <span>Rejected Documents</span>
                 </a></li>
-                <li><a href="{{ route('faculty.management') }}" class="flex items-center py-2 hover:bg-white/10 px-2 rounded transition-colors duration-150">
+                <li><a href="{{ route('faculty.management') }}" class="flex items-center py-2 hover:bg-white/20 px-2 rounded transition-colors duration-150">
                     <span class="mr-2">👤</span>
                     <span>Faculty Management</span>
                 </a></li>
+        @endif
 
-        @elseif(auth()->user()->role == 'Area Member')
-                <li><a href="{{ route('documents.view.page') }}" class="flex items-center py-2 hover:bg-white/10 px-2 rounded transition-colors duration-150">
+        @if(auth()->user()->role === 'Area Member')
+                <li><a href="{{ route('documents.view.page') }}" class="flex items-center py-2 hover:bg-white/20 px-2 rounded transition-colors duration-150">
                     <span class="mr-2">📂</span>
                     <span>View Documents</span>
                 </a></li>
-                <li><a href="{{ route('my.documents.approved') }}" class="flex items-center py-2 hover:bg-white/10 px-2 rounded transition-colors duration-150">
+                <li><a href="{{ route('my.documents.approved') }}" class="flex items-center py-2 hover:bg-white/20 px-2 rounded transition-colors duration-150">
                     <span class="mr-2">✅</span>
                     <span>Approved Documents</span>
                 </a></li>
-                <li><a href="{{ route('my.documents.rejected') }}" class="flex items-center py-2 hover:bg-white/10 px-2 rounded transition-colors duration-150">
+                <li><a href="{{ route('my.documents.rejected') }}" class="flex items-center py-2 hover:bg-white/20 px-2 rounded transition-colors duration-150">
                     <span class="mr-2">❌</span>
                     <span>Rejected Documents</span>
                 </a></li>
@@ -109,7 +112,7 @@ $goldenBrown = '#b87a3d';
         <ul class="space-y-1">
         @forelse($departments as $department)
             <li>
-                    <button onclick="toggleSubtopics('{{ $department->id }}')" class="w-full text-left flex items-center py-2 hover:bg-white/10 px-2 rounded transition-colors duration-150">
+                    <button onclick="toggleSubtopics('{{ $department->id }}')" class="w-full text-left flex items-center py-2 hover:bg-white/20 px-2 rounded transition-colors duration-150">
                         <span class="mr-2">📁</span>
                         <span>{{ $department->name }}</span>
                 </button>
@@ -117,7 +120,7 @@ $goldenBrown = '#b87a3d';
                     <ul id="subtopics-{{ $department->id }}" class="hidden ml-4 space-y-1">
                     @forelse($department->subtopics as $subtopic)
                             <li class="flex justify-between items-center py-1">
-                                <a href="{{ route('subtopics.show', $subtopic->id) }}" class="flex-1 flex items-center px-2 text-sm hover:bg-white/10 rounded transition-colors duration-150">
+                                <a href="{{ route('subtopics.show', $subtopic->id) }}" class="flex-1 flex items-center px-2 text-sm hover:bg-white/20 rounded transition-colors duration-150">
                                     <span class="mr-2">📄</span>
                                     <span>{{ $subtopic->name }}</span>
                             </a>
@@ -168,7 +171,7 @@ $goldenBrown = '#b87a3d';
     </ul>
 
     @if(in_array(auth()->user()->role, ['QA', 'Accreditor']))
-            <a href="{{ route('departments.create') }}" class="block mt-4 bg-[{{ $goldenBrown }}] text-white px-3 py-2 rounded text-center hover:bg-opacity-90 transition-colors duration-150">
+            <a href="{{ route('departments.create') }}" class="block mt-4 bg-white text-[{{ $royalBlue }}] px-3 py-2 rounded text-center hover:bg-white/90 transition-colors duration-150">
             ➕ Add Programs
         </a>
     @endif

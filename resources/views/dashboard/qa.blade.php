@@ -1,10 +1,10 @@
 <?php
 $royalBlue = '#1a237e';
-$goldenBrown = '#b87a3d';
+$goldenYellow = '#FFD700';
 ?>
 
 <x-app-layout>
-    <div class="bg-gradient-to-br from-[{{ $royalBlue }}]/5 to-white min-h-screen py-10">
+    <div class="bg-gradient-to-br from-[{{ $royalBlue }}]/5 to-[{{ $goldenYellow }}]/5 min-h-screen py-10">
         <div class="max-w-7xl mx-auto px-6 sm:px-10">
             <!-- Header -->
             <div class="mb-10">
@@ -16,7 +16,7 @@ $goldenBrown = '#b87a3d';
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <!-- Accreditation Info -->
-                <div class="lg:col-span-2 bg-white shadow-md rounded-2xl p-8 border border-[{{ $royalBlue }}]/10">
+                <div class="lg:col-span-2 bg-gradient-to-br from-white to-[{{ $goldenYellow }}]/10 shadow-md rounded-2xl p-8 border border-[{{ $royalBlue }}]/10">
                     <h2 class="text-2xl font-semibold text-[{{ $royalBlue }}] mb-4">🏛 About PSU-SCC Accreditation</h2>
                     <p class="text-gray-700 leading-relaxed text-justify">
                         QA Officers ensure the integrity and quality of submitted accreditation documents. Pangasinan State University – San Carlos Campus (PSU-SCC) complies with AACCUP standards to maintain academic excellence and institutional credibility.
@@ -63,7 +63,7 @@ $goldenBrown = '#b87a3d';
                 </div>
 
                 <!-- Guidelines -->
-                <div class="lg:col-span-3 bg-gradient-to-r from-[{{ $royalBlue }}] to-[{{ $goldenBrown }}] shadow-md rounded-2xl p-8 text-white mt-6">
+                <div class="lg:col-span-3 bg-gradient-to-r from-[{{ $royalBlue }}] to-[{{ $goldenYellow }}] shadow-md rounded-2xl p-8 text-white mt-6">
                     <h2 class="text-2xl font-semibold mb-4">📌 QA Guidelines</h2>
                     <ul class="space-y-3 list-disc list-inside text-white/90">
                         <li>Carefully evaluate documents before approval.</li>
