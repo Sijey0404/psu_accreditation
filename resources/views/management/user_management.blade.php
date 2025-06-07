@@ -4,28 +4,28 @@ $goldenBrown = '#b87a3d';
 ?>
 
 <x-app-layout>
-    <div class="bg-gradient-to-br from-[{{ $royalBlue }}]/5 to-white min-h-screen p-8">
+    <div class="bg-gradient-to-br from-[#1a237e]/5 to-white min-h-screen p-8">
         <div class="max-w-7xl mx-auto">
             <div class="flex justify-between items-center mb-8">
-            <div>
-                    <h1 class="text-3xl font-bold text-[{{ $royalBlue }}]">User Management</h1>
+                <div>
+                    <h1 class="text-3xl font-bold text-[#1a237e]">User Management</h1>
                     <p class="text-gray-600">Manage users and their roles in the accreditation system</p>
+                </div>
+                <button 
+                        class="bg-[#1a237e] hover:bg-[#1a237e]/90 text-white font-semibold py-2.5 px-4 rounded-lg shadow-md transition-all duration-200 flex items-center space-x-2"
+                    onclick="openModal('createUserModal')"
+                >
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                        </svg>
+                        <span>Create New User</span>
+                </button>
             </div>
-            <button 
-                    class="bg-[{{ $royalBlue }}] hover:bg-opacity-90 text-white font-semibold py-2.5 px-4 rounded-lg shadow-md transition-all duration-200 flex items-center space-x-2"
-                onclick="openModal('createUserModal')"
-            >
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                    </svg>
-                    <span>Create New User</span>
-            </button>
-        </div>
 
-        <!-- User Table -->
-            <div class="bg-white rounded-xl shadow-md overflow-hidden border border-[{{ $royalBlue }}]/10">
+            <!-- User Table -->
+            <div class="bg-white rounded-xl shadow-md overflow-hidden border border-[#1a237e]/10">
                 <table class="w-full divide-y divide-gray-200">
-                    <thead class="bg-[{{ $royalBlue }}]">
+                    <thead class="bg-[#1a237e]">
                     <tr>
                             <th class="px-4 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider w-[5%]">ID</th>
                             <th class="px-4 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider w-[25%]">Name</th>
@@ -41,7 +41,7 @@ $goldenBrown = '#b87a3d';
                             <td class="px-4 py-4 text-sm text-gray-900">{{ $user->id }}</td>
                             <td class="px-4 py-4">
                                 <div class="flex items-center">
-                                    <div class="h-8 w-8 rounded-full bg-[{{ $royalBlue }}]/10 text-[{{ $royalBlue }}] flex items-center justify-center font-semibold text-sm">
+                                    <div class="h-8 w-8 rounded-full bg-[#1a237e]/10 text-[#1a237e] flex items-center justify-center font-semibold text-sm">
                                         {{ strtoupper(substr($user->name, 0, 2)) }}
                                     </div>
                                     <div class="ml-3">
@@ -65,7 +65,7 @@ $goldenBrown = '#b87a3d';
                             <td class="px-4 py-4 text-center">
                                 <div class="flex items-center justify-center space-x-2">
                             <button 
-                                        class="bg-[{{ $royalBlue }}] hover:bg-opacity-90 text-white py-1.5 px-3 rounded-lg transition-colors duration-150 flex items-center"
+                                        class="bg-[#1a237e] hover:bg-[#1a237e]/90 text-white py-1.5 px-3 rounded-lg transition-colors duration-150 flex items-center"
                                 onclick="openEditModal({{ $user }})"
                             >
                                         <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -74,7 +74,7 @@ $goldenBrown = '#b87a3d';
                                 Edit
                             </button>
                             <button 
-                                        class="bg-red-500 hover:bg-opacity-90 text-white py-1.5 px-3 rounded-lg transition-colors duration-150 flex items-center"
+                                        class="bg-[#1a237e] hover:bg-[#1a237e]/90 text-white py-1.5 px-3 rounded-lg transition-colors duration-150 flex items-center"
                                 onclick="openDeleteModal({{ $user->id }})"
                             >
                                         <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -117,7 +117,7 @@ $goldenBrown = '#b87a3d';
             <div class="px-6 py-4 border-b border-gray-200">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center space-x-2">
-                        <svg class="w-6 h-6 text-[{{ $royalBlue }}]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-6 h-6 text-[#1a237e]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
                         </svg>
                         <h2 class="text-xl font-semibold text-gray-900">Create New User</h2>
@@ -143,7 +143,7 @@ $goldenBrown = '#b87a3d';
                                 </svg>
                             </div>
                             <input type="text" name="name" required 
-                                class="pl-10 w-full border border-gray-300 rounded-lg py-2.5 focus:ring-2 focus:ring-[{{ $royalBlue }}] focus:border-[{{ $royalBlue }}] transition-colors duration-200" 
+                                class="pl-10 w-full border border-gray-300 rounded-lg py-2.5 focus:ring-2 focus:ring-[#1a237e] focus:border-[#1a237e] transition-colors duration-200" 
                                 placeholder="Enter user's name"/>
                         </div>
                     </div>
@@ -158,7 +158,7 @@ $goldenBrown = '#b87a3d';
                                 </svg>
                             </div>
                             <input type="email" name="email" required 
-                                class="pl-10 w-full border border-gray-300 rounded-lg py-2.5 focus:ring-2 focus:ring-[{{ $royalBlue }}] focus:border-[{{ $royalBlue }}] transition-colors duration-200" 
+                                class="pl-10 w-full border border-gray-300 rounded-lg py-2.5 focus:ring-2 focus:ring-[#1a237e] focus:border-[#1a237e] transition-colors duration-200" 
                                 placeholder="Enter email address"/>
                         </div>
                     </div>
@@ -166,6 +166,7 @@ $goldenBrown = '#b87a3d';
                     <!-- Password Input -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                        <p class="text-sm text-gray-500 mb-2">Default password: Psuedu123</p>
                         <div class="relative rounded-md shadow-sm">
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -173,8 +174,9 @@ $goldenBrown = '#b87a3d';
                                 </svg>
                             </div>
                             <input type="password" name="password" id="createUserPassword" required 
-                                class="pl-10 pr-10 w-full border border-gray-300 rounded-lg py-2.5 focus:ring-2 focus:ring-[{{ $royalBlue }}] focus:border-[{{ $royalBlue }}] transition-colors duration-200" 
-                                placeholder="Enter password"/>
+                                class="pl-10 pr-10 w-full border border-gray-300 rounded-lg py-2.5 focus:ring-2 focus:ring-[#1a237e] focus:border-[#1a237e] transition-colors duration-200" 
+                                placeholder="Enter password"
+                                value="Psuedu123"/>
                             <button type="button" 
                                 class="absolute inset-y-0 right-0 pr-3 flex items-center"
                                 onclick="togglePasswordVisibility('createUserPassword', 'createPasswordEyeIcon', 'createPasswordEyeOffIcon')">
@@ -199,7 +201,7 @@ $goldenBrown = '#b87a3d';
                                 </svg>
                 </div>
                             <select name="role" required 
-                                class="pl-10 w-full border border-gray-300 rounded-lg py-2.5 focus:ring-2 focus:ring-[{{ $royalBlue }}] focus:border-[{{ $royalBlue }}] transition-colors duration-200 appearance-none bg-white">
+                                class="pl-10 w-full border border-gray-300 rounded-lg py-2.5 focus:ring-2 focus:ring-[#1a237e] focus:border-[#1a237e] transition-colors duration-200 appearance-none bg-white">
                                 <option value="">Select a role...</option>
                         <option value="Area Member">Area Member</option>
                         <option value="Area Chair">Area Chair</option>
@@ -216,12 +218,12 @@ $goldenBrown = '#b87a3d';
                 <!-- Form Actions -->
                 <div class="mt-6 flex items-center justify-end space-x-3">
                     <button type="button" 
-                        class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[{{ $royalBlue }}] transition-colors duration-200"
+                        class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#1a237e] transition-colors duration-200"
                         onclick="closeModal('createUserModal')">
                         Cancel
                     </button>
                     <button type="submit" 
-                        class="px-4 py-2 bg-[{{ $royalBlue }}] text-white rounded-lg hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[{{ $royalBlue }}] transition-colors duration-200 flex items-center">
+                        class="px-4 py-2 bg-[#1a237e] text-white rounded-lg hover:bg-[#1a237e]/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#1a237e] transition-colors duration-200 flex items-center">
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
                         </svg>
@@ -236,7 +238,7 @@ $goldenBrown = '#b87a3d';
     <div id="editUserModal" class="hidden fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
         <div class="bg-white w-96 rounded-2xl p-8 shadow-lg">
             <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-bold text-[{{ $goldenBrown }}]">Edit User</h2>
+                <h2 class="text-2xl font-bold text-[#b87a3d]">Edit User</h2>
                 <button onclick="closeModal('editUserModal')" class="text-gray-400 hover:text-gray-600">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -251,21 +253,23 @@ $goldenBrown = '#b87a3d';
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Name</label>
                         <input type="text" name="name" id="editUserName" required 
-                            class="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-[{{ $goldenBrown }}]/20 focus:border-[{{ $goldenBrown }}] transition-colors duration-200" />
+                            class="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-[#b87a3d]/20 focus:border-[#b87a3d] transition-colors duration-200" />
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
                         <input type="email" name="email" id="editUserEmail" required 
-                            class="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-[{{ $goldenBrown }}]/20 focus:border-[{{ $goldenBrown }}] transition-colors duration-200" />
+                            class="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-[#b87a3d]/20 focus:border-[#b87a3d] transition-colors duration-200" />
                 </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">
                             Password 
                             <span class="text-sm text-gray-500">(Leave blank to keep current)</span>
                         </label>
+                        <p class="text-sm text-gray-500 mb-2">Default password: Psuedu123</p>
                         <div class="relative">
                             <input type="password" name="password" id="editUserPassword"
-                                class="pr-10 w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-[{{ $goldenBrown }}]/20 focus:border-[{{ $goldenBrown }}] transition-colors duration-200" />
+                                class="pr-10 w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-[#1a237e]/20 focus:border-[#1a237e] transition-colors duration-200" 
+                                placeholder="Psuedu123"/>
                             <button type="button" 
                                 class="absolute inset-y-0 right-0 pr-3 flex items-center"
                                 onclick="togglePasswordVisibility('editUserPassword', 'editPasswordEyeIcon', 'editPasswordEyeOffIcon')">
@@ -282,7 +286,7 @@ $goldenBrown = '#b87a3d';
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Role</label>
                         <select name="role" id="editUserRole" required 
-                            class="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-[{{ $goldenBrown }}]/20 focus:border-[{{ $goldenBrown }}] transition-colors duration-200">
+                            class="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-[#b87a3d]/20 focus:border-[#b87a3d] transition-colors duration-200">
                         <option value="QA">QA</option>
                         <option value="Area Member">Area Member</option>
                         <option value="Area Chair">Area Chair</option>
@@ -297,7 +301,7 @@ $goldenBrown = '#b87a3d';
                         Cancel
                     </button>
                     <button type="submit" 
-                        class="px-4 py-2 bg-[{{ $goldenBrown }}] text-white rounded-lg hover:bg-opacity-90 transition-colors duration-200">
+                        class="px-4 py-2 bg-[#1a237e] text-white rounded-lg hover:bg-[#1a237e]/90 transition-colors duration-200">
                         Save Changes
                     </button>
                 </div>
@@ -326,7 +330,7 @@ $goldenBrown = '#b87a3d';
                             Cancel
                         </button>
                         <button type="submit" 
-                            class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-opacity-90 transition-colors duration-200">
+                            class="px-4 py-2 bg-[#1a237e] text-white rounded-lg hover:bg-[#1a237e]/90 transition-colors duration-200">
                             Delete User
                         </button>
                 </div>
