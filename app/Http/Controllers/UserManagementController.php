@@ -86,7 +86,7 @@ class UserManagementController extends Controller
             abort(403, 'Unauthorized.');
         }
 
-        $users = User::where('role', 'Area Member')->get();
+        $users = User::where('role', 'Area Member')->paginate(5);
         return view('management.faculty_management', compact('users'));
     }
 
