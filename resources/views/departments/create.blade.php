@@ -58,7 +58,7 @@ $goldenBrown = '#b87a3d';
 
                         <!-- Department Input -->
                         <div>
-                            <label for="slug" class="block text-sm font-medium text-gray-700 mb-1">Department Name</label>
+                            <label for="slug" class="block text-sm font-medium text-gray-700 mb-1">College Name</label>
                             <div class="relative rounded-md shadow-sm">
                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                     <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -70,7 +70,7 @@ $goldenBrown = '#b87a3d';
                                     id="slug" 
                                     class="block w-full pl-10 border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-[{{ $royalBlue }}] focus:border-[{{ $royalBlue }}] outline-none transition-colors duration-200" 
                                     required 
-                                    placeholder="Enter the department name"
+                                    placeholder="Enter the College name"
                                     value="{{ old('slug') }}">
                             </div>
                 @error('slug')

@@ -49,7 +49,7 @@ $goldenYellow = '#FFD700';
                 <li><a href="{{ route('documents.view.page') }}" class="flex items-center py-2 hover:bg-white/20 px-2 rounded transition-colors duration-150">
                     <span class="mr-2">📂</span>
                     <span>View Documents</span>
-                </a></li>
+                
         @endif
 
         @if(auth()->user()->role === 'Accreditor')
@@ -104,6 +104,16 @@ $goldenYellow = '#FFD700';
                     <span>Rejected Documents</span>
                 </a></li>
         @endif
+
+        @php
+            $user = Auth::user();
+        @endphp
+        @if(in_array($user->role, ['QA', 'Accreditor']))
+            <li><a href="{{ route('maintenance.test') }}" class="flex items-center py-2 hover:bg-white/20 px-2 rounded transition-colors duration-150">
+                <span class="mr-2">🛠️</span>
+                <span>Maintenance</span>
+            </a></li>
+        @endif
     </ul>
 
         <hr class="my-4 border-white/20">
@@ -111,62 +121,131 @@ $goldenYellow = '#FFD700';
         <h3 class="text-md font-semibold mb-2 text-white/90">Programs</h3>
         <ul class="space-y-1">
         @forelse($departments as $department)
-            <li>
-                    <button onclick="toggleSubtopics('{{ $department->id }}')" class="w-full text-left flex items-center py-2 hover:bg-white/20 px-2 rounded transition-colors duration-150">
+            <li class="relative group ml-1">
+                <div class="flex items-center justify-between">
+                    <button onclick="toggleNode('dept-{{ $department->id }}')" class="w-full text-left flex items-center py-2 hover:bg-white/20 px-2 rounded transition-colors duration-150 group-hover:bg-white/10">
                         <span class="mr-2">📁</span>
                         <span>{{ $department->name }}</span>
-                </button>
-
-                    <ul id="subtopics-{{ $department->id }}" class="hidden ml-4 space-y-1">
-                    @forelse($department->subtopics as $subtopic)
-                            <li class="flex justify-between items-center py-1">
-                                <a href="{{ route('subtopics.show', $subtopic->id) }}" class="flex-1 flex items-center px-2 text-sm hover:bg-white/20 rounded transition-colors duration-150">
-                                    <span class="mr-2">📄</span>
-                                    <span>{{ $subtopic->name }}</span>
-                            </a>
-
-                            @if(in_array(auth()->user()->role, ['QA', 'Accreditor']))
-                                    <div class="flex space-x-2 px-2">
-                                        <a href="{{ route('subtopics.edit', $subtopic->id) }}" class="text-white/80 hover:text-white text-xs">✏️</a>
-                                    <form action="{{ route('subtopics.destroy', $subtopic->id) }}" method="POST" onsubmit="return confirm('Are you sure?');">
-                                        @csrf
-                                        @method('DELETE')
-                                            <button type="submit" class="text-white/80 hover:text-white text-xs">🗑️</button>
-                                    </form>
-                                </div>
-                            @endif
+                    </button>
+                    @if(in_array(auth()->user()->role, ['QA', 'Accreditor']))
+                        <div class="flex items-center space-x-1 ml-2">
+                            <a href="{{ route('departments.edit', $department->id) }}" class="text-white/80 hover:text-white text-xs" title="Edit Department">✏️</a>
+                            <form action="{{ route('departments.destroy', $department->id) }}" method="POST" onsubmit="return confirm('Delete this department?');" class="inline">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="text-white/80 hover:text-white text-xs" title="Delete Department">🗑️</button>
+                            </form>
+                        </div>
+                    @endif
+                </div>
+                <ul id="dept-{{ $department->id }}" class="hidden space-y-1">
+                    @forelse($department->accreditationFolders as $folder)
+                        <li class="relative group ml-1">
+                            <div class="flex items-center justify-between">
+                                <button onclick="toggleNode('folder-{{ $folder->id }}')" class="w-full text-left flex items-center py-2 hover:bg-white/10 px-2 rounded transition-colors duration-150 group-hover:bg-white/20" id="folder-btn-{{ $folder->id }}">
+                                    <span class="mr-2">🗂️</span>
+                                    <span>{{ $folder->name }}</span>
+                                </button>
+                                @if(in_array(auth()->user()->role, ['QA', 'Accreditor']))
+                                    <div class="flex items-center space-x-1 ml-2">
+                                        <a href="{{ route('accreditation-folders.edit', $folder->id) }}" class="text-white/80 hover:text-white text-xs" title="Edit Folder">✏️</a>
+                                        <form action="{{ route('accreditation-folders.destroy', $folder->id) }}" method="POST" onsubmit="return confirm('Delete this folder?');" class="inline">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="text-white/80 hover:text-white text-xs" title="Delete Folder">🗑️</button>
+                                        </form>
+                                    </div>
+                                @endif
+                            </div>
+                            <ul id="folder-{{ $folder->id }}" class="hidden space-y-1">
+                                @php
+                                    $levels = ['Level I', 'Level II', 'Level III', 'Level IV'];
+                                    $subtopicsByLevel = collect($folder->subtopics)->groupBy('level');
+                                @endphp
+                                @foreach($levels as $level)
+                                    <li>
+                                        <button onclick="toggleNode('level-{{ $folder->id }}-{{ $level }}')" class="w-full text-left flex items-center py-1 hover:bg-white/10 px-2 rounded transition-colors duration-150">
+                                            <span class="mr-2">📑</span>
+                                            <span>{{ $level }}</span>
+                                        </button>
+                                        <ul id="level-{{ $folder->id }}-{{ $level }}" class="hidden space-y-1">
+                                            @php
+                                                $areasInLevel = $subtopicsByLevel[$level] ?? collect();
+                                                $areaList = [
+                                                    'Area I: Vision, Mission, Goals and Objectives',
+                                                    'AREA II: FACULTY',
+                                                    'AREA III: CURRICULUM AND INSTRUCTIONS',
+                                                    'AREA IV: SUPPORT TO STUDENTS',
+                                                    'AREA V: RESEARCH',
+                                                    'AREA VI: EXTENSION AND COMMUNITY INVOLVEMENT',
+                                                    'Area VII: Research Agenda and Priorities',
+                                                    'Area VIII: Campus and Site',
+                                                    'Area IX: Laboratory Management and Safety',
+                                                    'Area X: Organizational Structure'
+                                                ];
+                                                $availableAreas = collect($areaList)->diff($areasInLevel->pluck('name'));
+                                            @endphp
+                                            @foreach($areasInLevel as $area)
+                                                <li class="flex justify-between items-center py-1">
+                                                    <a href="{{ route('subtopics.show', $area->id) }}" class="flex-1 flex items-center px-2 text-sm hover:bg-white/20 rounded transition-colors duration-150">
+                                                        <span class="mr-2">📄</span>
+                                                        <span>{{ $area->name }}</span>
+                                                    </a>
+                                                    @if(in_array(auth()->user()->role, ['QA', 'Accreditor']))
+                                                        <div class="flex space-x-2 px-2">
+                                                            <a href="{{ route('subtopics.edit', $area->id) }}" class="text-white/80 hover:text-white text-xs">✏️</a>
+                                                            <form action="{{ route('subtopics.destroy', $area->id) }}" method="POST" onsubmit="return confirm('Are you sure?');">
+                                                                @csrf
+                                                                @method('DELETE')
+                                                                <button type="submit" class="text-white/80 hover:text-white text-xs">🗑️</button>
+                                                            </form>
+                                                        </div>
+                                                    @endif
+                                                </li>
+                                            @endforeach
+                                            @if(in_array(auth()->user()->role, ['QA', 'Accreditor']))
+                                                <li class="mt-2">
+                                                    <form action="{{ route('subtopics.store') }}" method="POST" class="flex flex-col gap-2">
+                                                        @csrf
+                                                        <input type="hidden" name="department_id" value="{{ $department->id }}">
+                                                        <input type="hidden" name="accreditation_folder_id" value="{{ $folder->id }}">
+                                                        <input type="hidden" name="level" value="{{ $level }}">
+                                                        <select name="subtopic" class="w-full p-2 bg-[{{ $royalBlue }}] text-white rounded border border-white/20 text-sm focus:outline-none focus:ring-2 focus:ring-white [&>option]:bg-[{{ $royalBlue }}] [&>option]:text-white hover:[&>option]:bg-[{{ $royalBlue }}]/80" required>
+                                                            <option value="">Select Area...</option>
+                                                            @foreach($availableAreas as $areaName)
+                                                                <option value="{{ $areaName }}">{{ $areaName }}</option>
+                                                            @endforeach
+                                                        </select>
+                                                        <button type="submit" class="w-full bg-white text-[{{ $royalBlue }}] px-3 py-2 rounded text-xs font-semibold hover:bg-white/90 transition-colors duration-150 flex items-center justify-center gap-1">
+                                                            <span>➕</span>
+                                                            <span>Add Area</span>
+                                                        </button>
+                                                    </form>
+                                                </li>
+                                            @endif
+                                        </ul>
+                                    </li>
+                                @endforeach
+                            </ul>
                         </li>
                     @empty
-                            <li class="text-white/60 px-2 text-sm">No contents available</li>
+                        <li class="text-white/60 px-2 text-sm">No Accreditation Folders</li>
                     @endforelse
-
                     @if(in_array(auth()->user()->role, ['QA', 'Accreditor']))
-                        <form action="{{ route('subtopics.store') }}" method="POST" class="mt-2 px-2">
+                        <form action="{{ route('accreditation-folders.store') }}" method="POST" class="mt-2 px-2">
                             @csrf
                             <input type="hidden" name="department_id" value="{{ $department->id }}">
-                                <select name="subtopic" class="w-full p-2 bg-[{{ $royalBlue }}] text-white rounded border border-white/20 text-sm mb-2 focus:outline-none focus:ring-2 focus:ring-white [&>option]:bg-[{{ $royalBlue }}] [&>option]:text-white hover:[&>option]:bg-[{{ $royalBlue }}]/80" required>
-                                    <option value="">Select Area...</option>
-                                    <option value="Area I: Vision, Mission, Goals and Objectives">Area I: Vision, Mission, Goals and Objectives</option>
-                                    <option value="AREA II: FACULTY">AREA II: FACULTY</option>
-                                    <option value="AREA III: CURRICULUM AND INSTRUCTIONS">AREA III: CURRICULUM AND INSTRUCTIONS</option>
-                                    <option value="AREA IV: SUPPORT TO STUDENTS">AREA IV: SUPPORT TO STUDENTS</option>
-                                    <option value="AREA V: RESEARCH">AREA V: RESEARCH</option>
-                                    <option value="AREA VI: EXTENSION AND COMMUNITY INVOLVEMENT">AREA VI: EXTENSION AND COMMUNITY INVOLVEMENT</option>
-                                    <option value="Area VII: Research Agenda and Priorities">Area VII: Research Agenda and Priorities</option>
-                                    <option value="Area VIII: Campus and Site">Area VIII: Campus and Site</option>
-                                    <option value="Area IX: Laboratory Management and Safety">Area IX: Laboratory Management and Safety</option>
-                                    <option value="Area X: Organizational Structure">Area X: Organizational Structure</option>
-                                </select>
-                                <button type="submit" class="w-full bg-white text-[{{ $royalBlue }}] px-3 py-2 rounded text-xs font-semibold hover:bg-white/90 transition-colors duration-150 flex items-center justify-center gap-1">
-                                    <span>➕</span>
-                                    <span>Add Area</span>
-                                </button>
+                            <input type="text" name="name" placeholder="New Accreditation Folder" class="w-full p-2 bg-[{{ $royalBlue }}] text-white rounded border border-white/20 text-sm mb-2 focus:outline-none focus:ring-2 focus:ring-white" required>
+                            <button type="submit" class="w-full bg-white text-[{{ $royalBlue }}] px-3 py-2 rounded text-xs font-semibold hover:bg-white/90 transition-colors duration-150 flex items-center justify-center gap-1">
+                                <span>➕</span>
+                                <span>Add Folder</span>
+                            </button>
                         </form>
                     @endif
                 </ul>
             </li>
         @empty
-                <li class="text-white/60 px-2">No departments available</li>
+            <li class="text-white/60 px-2">No departments available</li>
         @endforelse
     </ul>
 
@@ -179,8 +258,18 @@ $goldenYellow = '#FFD700';
 </div>
 
 <script>
-    function toggleSubtopics(departmentId) {
-        let subtopicList = document.getElementById("subtopics-" + departmentId);
-        subtopicList.classList.toggle("hidden");
+    function toggleNode(id) {
+        let el = document.getElementById(id);
+        if (el) {
+            el.classList.toggle('hidden');
+            // Highlight the opened folder
+            if (id.startsWith('folder-')) {
+                document.querySelectorAll('[id^="folder-btn-"]').forEach(btn => btn.classList.remove('bg-white/30'));
+                let btn = document.getElementById('folder-btn-' + id.replace('folder-', ''));
+                if (btn && !el.classList.contains('hidden')) {
+                    btn.classList.add('bg-white/30');
+                }
+            }
+        }
     }
 </script>

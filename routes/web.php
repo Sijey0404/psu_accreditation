@@ -13,6 +13,7 @@ use App\Http\Controllers\QAController;
 use App\Http\Controllers\UserManagementController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\EvaluationController;
+use App\Http\Controllers\AccreditationFolderController;
 
 Route::get('/google-drive/folder/{id}', [GoogleDriveController::class, 'getFolderContents']);
 
@@ -79,6 +80,7 @@ Route::middleware(['auth'])->group(function () {
 
 Route::get('/documents/folder/{folder}', [DocumentController::class, 'getByFolder']);
 Route::get('/folders/{id}/documents', [FolderController::class, 'getDocuments']);
+Route::get('/folders/{id}/children', [FolderController::class, 'children']);
 
 Route::get('/documents/folder/{folderId}', [DocumentController::class, 'getDocumentsByFolder']);
 
@@ -99,6 +101,7 @@ Route::delete('/folders/area/{subtopic}/{area}', [FolderController::class, 'dest
 
 
 Route::post('/subtopics/{id}/generate-folders', [SubtopicController::class, 'generateFolders'])->name('subtopics.generateFolders');
+Route::post('/subtopics/{id}/add-folder', [App\Http\Controllers\SubtopicController::class, 'addFolder'])->name('subtopics.addFolder');
 
 Route::get('/dcc/dashboard', [DocumentController::class, 'dccDashboard'])->name('dcc.dashboard');
 
@@ -126,6 +129,11 @@ Route::get('/departments/create', [DepartmentController::class, 'create'])->name
 Route::post('/departments', [DepartmentController::class, 'store'])->name('departments.store');
 Route::get('/departments/{id}', [DepartmentController::class, 'show'])->name('department.view');
 Route::get('departments/{slug}', [DepartmentController::class, 'show'])->name('departments.show');
+
+// Department edit/delete
+Route::get('/departments/{id}/edit', [DepartmentController::class, 'edit'])->name('departments.edit');
+Route::put('/departments/{id}', [DepartmentController::class, 'update'])->name('departments.update');
+Route::delete('/departments/{id}', [DepartmentController::class, 'destroy'])->name('departments.destroy');
 
 // 🌍 Landing Page
 Route::get('/', function () {
@@ -202,4 +210,22 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/reports/evaluation/{evaluation}/edit', [EvaluationController::class, 'edit'])->name('reports.evaluation.edit');
     Route::put('/reports/evaluation/{evaluation}', [EvaluationController::class, 'update'])->name('reports.evaluation.update');
     Route::delete('/reports/evaluation/{evaluation}', [EvaluationController::class, 'destroy'])->name('reports.evaluation.destroy');
+});
+
+Route::post('/accreditation-folders/store', [AccreditationFolderController::class, 'store'])->name('accreditation-folders.store');
+
+// Accreditation Folder edit/delete
+Route::get('/accreditation-folders/{id}/edit', [AccreditationFolderController::class, 'edit'])->name('accreditation-folders.edit');
+Route::put('/accreditation-folders/{id}', [AccreditationFolderController::class, 'update'])->name('accreditation-folders.update');
+Route::delete('/accreditation-folders/{id}', [AccreditationFolderController::class, 'destroy'])->name('accreditation-folders.destroy');
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/maintenance', function () {
+        return view('maintenance-test');
+    })->name('maintenance.test');
+
+    // Folder structure maintenance routes
+    Route::get('/maintenance/folder-structures', [\App\Http\Controllers\FolderStructureController::class, 'index'])->name('folder-structures.index');
+    Route::get('/maintenance/folder-structures/{id}/edit', [\App\Http\Controllers\FolderStructureController::class, 'edit'])->name('folder-structures.edit');
+    Route::post('/maintenance/folder-structures/{id}', [\App\Http\Controllers\FolderStructureController::class, 'update'])->name('folder-structures.update');
 });

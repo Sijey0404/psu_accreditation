@@ -26,4 +26,9 @@ class Department extends Model
     {
         return $this->hasMany(Subtopic::class);
     }
+
+    public function accreditationFolders()
+    {
+        return $this->hasMany(AccreditationFolder::class);
+    }
 }

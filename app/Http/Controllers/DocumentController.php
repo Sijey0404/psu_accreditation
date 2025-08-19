@@ -115,6 +115,20 @@ class DocumentController extends Controller
                 'approval_feedback' => $feedback
             ]);
 
+            // Upload to Google Drive after approval
+            try {
+                $driveService = new \App\Services\GoogleDriveService();
+                $folderDriveId = $document->folder->drive_id ?? null; // Parent folder on Google Drive
+                $localFilePath = storage_path('app/public/' . $document->file_path);
+                $fileName = $document->title . '.' . $document->file_type;
+                $googleDriveLink = $driveService->uploadFile($localFilePath, $fileName, $folderDriveId);
+                // Save the Google Drive link to the document
+                $document->update(['original_link' => $googleDriveLink]);
+            } catch (\Exception $e) {
+                \Log::error('Google Drive upload failed: ' . $e->getMessage());
+                // Optionally, you can notify the user or continue silently
+            }
+
             // Create notification for document uploader if they are Area Member or Area Chair
             if (in_array($document->uploader->role, ['Area Member', 'Area Chair'])) {
                 Notification::create([

@@ -5,24 +5,18 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::table('subtopics', function (Blueprint $table) {
-            $table->foreignId('department_id')->constrained()->onDelete('cascade');
+            $table->foreignId('accreditation_folder_id')->nullable()->constrained('accreditation_folders')->onDelete('cascade');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::table('subtopics', function (Blueprint $table) {
-            $table->dropForeign(['department_id']);
-            $table->dropColumn('department_id');
+            $table->dropForeign(['accreditation_folder_id']);
+            $table->dropColumn('accreditation_folder_id');
         });
     }
-};
+}; 

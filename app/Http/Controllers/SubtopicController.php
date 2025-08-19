@@ -15,11 +15,15 @@ class SubtopicController extends Controller
         $request->validate([
             'department_id' => 'required|exists:departments,id',
             'subtopic' => 'required|string|max:255',
+            'level' => 'required|string',
+            'accreditation_folder_id' => 'required|exists:accreditation_folders,id',
         ]);
 
         Subtopic::create([
             'department_id' => $request->department_id,
+            'accreditation_folder_id' => $request->accreditation_folder_id,
             'name' => $request->subtopic,
+            'level' => $request->level,
         ]);
 
         return back()->with('success', 'Subtopic added successfully!');
@@ -121,6 +125,7 @@ class SubtopicController extends Controller
         $areaData = $areaFolders[$areaKey];
         $currentMainFolder = null;
         $currentMainDriveId = null;
+        $currentMainFolderId = null;
 
         foreach ($areaData as $folderName) {
             if (preg_match('/^[A-Z]\. /', $folderName)) {
@@ -131,15 +136,17 @@ class SubtopicController extends Controller
                     \Log::error('Failed to create main folder on Google Drive', ['folder' => $currentMainFolder]);
                 }
 
-                Folder::updateOrCreate(
+                $mainFolder = Folder::updateOrCreate(
                     ['subtopic_id' => $subtopic->id, 'name' => $currentMainFolder],
                     [
                         'path' => $currentMainFolder,
                         'drive_id' => $currentMainDriveId,
+                        'parent_id' => null,
                     ]
                 );
+                $currentMainFolderId = $mainFolder->id;
             } else {
-                if ($currentMainFolder && $currentMainDriveId) {
+                if ($currentMainFolder && $currentMainDriveId && $currentMainFolderId) {
                     $subDriveId = $drive->createFolder($folderName, $currentMainDriveId);
 
                     if (!$subDriveId) {
@@ -151,6 +158,7 @@ class SubtopicController extends Controller
                         [
                             'path' => $folderName,
                             'drive_id' => $subDriveId,
+                            'parent_id' => $currentMainFolderId,
                         ]
                     );
                 }
@@ -161,6 +169,36 @@ class SubtopicController extends Controller
         $subtopic->update(['has_generated_folders' => true]);
 
         return redirect()->route('subtopics.show', $id)->with('success', 'Folders generated successfully!');
+    }
+
+    public function addFolder(Request $request, $id)
+    {
+        $request->validate([
+            'folder_name' => 'required|string|max:255',
+            'parent_id' => 'nullable|exists:folders,id',
+        ]);
+        $subtopic = Subtopic::findOrFail($id);
+
+        $drive = new \App\Services\GoogleDriveService();
+        $parentDriveId = null;
+        $parentId = $request->parent_id;
+        if ($parentId) {
+            $parentFolder = \App\Models\Folder::findOrFail($parentId);
+            $parentDriveId = $parentFolder->drive_id;
+        } else {
+            $parentDriveId = $subtopic->drive_id ?? env('GOOGLE_DRIVE_FOLDER_ID');
+        }
+        $driveId = $drive->createFolder($request->folder_name, $parentDriveId);
+
+        \App\Models\Folder::create([
+            'subtopic_id' => $subtopic->id,
+            'name' => $request->folder_name,
+            'drive_id' => $driveId,
+            'path' => $request->folder_name,
+            'parent_id' => $parentId,
+        ]);
+
+        return back()->with('success', 'Repository added successfully!');
     }
 
     private static function getAreaFolders()

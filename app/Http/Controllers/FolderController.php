@@ -80,5 +80,19 @@ public function getDocuments($id)
     return response()->json($documents);
 }
 
+public function children($id)
+{
+    $folder = Folder::with(['children' => function($query) {
+        $query->withCount('documents');
+    }])->findOrFail($id);
+    return response()->json($folder->children->map(function($child) {
+        return [
+            'id' => $child->id,
+            'name' => $child->name,
+            'documents_count' => $child->documents_count,
+        ];
+    }));
+}
+
 
 }

@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('department_id');
             $table->string('name');
+            $table->string('level')->nullable();
             $table->boolean('has_generated_folders')->default(false);
             $table->timestamps();
 

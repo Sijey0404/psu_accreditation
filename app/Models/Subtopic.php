@@ -10,7 +10,7 @@ class Subtopic extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['department_id', 'name', 'has_generated_folders'];
+    protected $fillable = ['department_id', 'name', 'has_generated_folders', 'level', 'accreditation_folder_id'];
 
     public function department()
     {
@@ -27,6 +27,11 @@ class Subtopic extends Model
 public function documents()
 {
     return $this->hasMany(Document::class);
+}
+
+public function accreditationFolder()
+{
+    return $this->belongsTo(AccreditationFolder::class);
 }
 
 

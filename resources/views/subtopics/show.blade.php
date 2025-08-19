@@ -68,7 +68,38 @@ $goldenBrown = '#b87a3d';
             </form>
                     </div>
                 </div>
-        @endif
+            @endif
+            @if(in_array(Auth::user()->role, ['QA', 'Accreditor']))
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-6 mt-4">
+                    <div class="bg-gradient-to-r from-[{{ $royalBlue }}] to-[{{ $goldenBrown }}] p-4">
+                        <h3 class="text-xl font-semibold text-white">Add Repository Manually</h3>
+                    </div>
+                    <div class="p-6">
+                        @if(session('success'))
+                            <div class="mb-4 text-green-600">{{ session('success') }}</div>
+                        @endif
+                        @if($errors->any())
+                            <div class="mb-4 text-red-600">
+                                <ul class="list-disc pl-5">
+                                    @foreach($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
+                        <form action="{{ route('subtopics.addFolder', $subtopic->id) }}" method="POST" class="flex flex-col md:flex-row gap-2 items-center justify-center">
+                            @csrf
+                            <input type="text" name="folder_name" placeholder="Enter folder name" required class="border rounded p-2 w-full md:w-1/2">
+                            <button type="submit" class="inline-flex items-center px-6 py-2 border border-transparent text-base font-medium rounded-lg text-white bg-[{{ $royalBlue }}] hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[{{ $royalBlue }}] transition-all duration-200">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+                                </svg>
+                                Add Repository
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            @endif
 
         {{-- DISPLAY FOLDERS --}}
             <div class="bg-white rounded-lg shadow-md overflow-hidden">
@@ -77,9 +108,9 @@ $goldenBrown = '#b87a3d';
                 </div>
                 <div class="p-6">
                     <div id="folders-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            @foreach($subtopic->folders as $folder)
+            @foreach($subtopic->folders->where('parent_id', null) as $folder)
                             <div class="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-all duration-200 cursor-pointer"
-                                 onclick="openFolderModal({{ $folder->id }}, '{{ $folder->name }}')">
+                                 onclick="openSubfolderModal({{ $folder->id }}, '{{ $folder->name }}')">
                                 <div class="flex items-start justify-between">
                                     <div class="flex items-center space-x-3">
                                         <span class="text-2xl">📁</span>
@@ -170,6 +201,55 @@ $goldenBrown = '#b87a3d';
             <p class="text-gray-500 text-center">This might take a while, Please wait...</p>
         </div>
     </div>
+
+    {{-- SUBFOLDER MODAL --}}
+    <dialog id="subfolderModal" class="rounded-xl shadow-2xl w-full max-w-xl p-0 bg-white overflow-hidden">
+        <div class="bg-[{{ $royalBlue }}] text-white px-6 py-4 flex justify-between items-center">
+            <h3 id="subfolderModalTitle" class="text-lg font-semibold"></h3>
+            <form method="dialog" class="ml-4">
+                <button class="text-white hover:text-blue-200 transition-colors duration-150">&times;</button>
+            </form>
+        </div>
+        <div class="p-6 flex flex-col gap-2">
+            {{-- UPLOAD FORM --}}
+            <form id="subfolderUploadForm" action="{{ route('documents.store') }}" method="POST" enctype="multipart/form-data" class="mb-2 flex flex-col md:flex-row gap-2 items-center justify-center">
+                @csrf
+                <input type="hidden" name="subtopic_id" value="{{ $subtopic->id }}">
+                <input type="hidden" name="folder_id" id="subfolderModalFolderId">
+                <input type="text" name="title" placeholder="Document Title" class="border rounded p-1 text-sm w-full md:w-1/3" required>
+                <input type="text" name="category" placeholder="Category" class="border rounded p-1 text-sm w-full md:w-1/4">
+                <input type="file" name="file" class="border rounded p-1 text-sm w-full md:w-1/4" required>
+                <button type="submit" class="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded bg-[{{ $royalBlue }}] text-white hover:bg-opacity-90 transition-all duration-200">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+                    </svg>
+                    Upload
+                </button>
+            </form>
+            {{-- ADD FOLDER FORM --}}
+            <form id="addSubfolderForm" action="{{ route('subtopics.addFolder', $subtopic->id) }}" method="POST" class="mb-2 flex flex-col md:flex-row gap-2 items-center justify-center">
+                @csrf
+                <input type="hidden" name="parent_id" id="subfolderParentId">
+                <input type="text" name="folder_name" placeholder="Enter folder name" required class="border rounded p-1 text-sm w-full md:w-1/2">
+                <button type="submit" class="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded bg-[{{ $royalBlue }}] text-white hover:bg-opacity-90 transition-all duration-200">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+                    </svg>
+                    Add Folder
+                </button>
+            </form>
+            <div id="subfolderList" class="space-y-2 mb-4 overflow-y-auto" style="max-height: 250px;">
+                <!-- Subfolders will be loaded here -->
+            </div>
+            {{-- DOCUMENT LIST --}}
+            <div class="border-t border-gray-200 pt-2 mt-2">
+                <h4 class="text-base font-semibold mb-2 text-[{{ $royalBlue }}]">Uploaded Documents</h4>
+                <div id="subfolderDocumentList" class="max-h-40 overflow-y-auto space-y-2 text-xs">
+                    <p class="text-gray-500">Loading...</p>
+                </div>
+            </div>
+        </div>
+    </dialog>
 
     <script>
         let currentSort = 'name-asc';
@@ -383,6 +463,65 @@ $goldenBrown = '#b87a3d';
             modal.showModal();
         }
 
+        function openSubfolderModal(folderId, folderName) {
+            const modal = document.getElementById('subfolderModal');
+            document.getElementById('subfolderModalTitle').innerText = folderName;
+            document.getElementById('subfolderParentId').value = folderId;
+            document.getElementById('subfolderModalFolderId').value = folderId;
+            const subfolderList = document.getElementById('subfolderList');
+            subfolderList.innerHTML = '<p class="text-gray-500">Loading...</p>';
+            fetch(`/folders/${folderId}/children`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.length === 0) {
+                        subfolderList.innerHTML = '<p class="text-gray-500 text-center py-4">No subfolders available.</p>';
+                        return;
+                    }
+                    subfolderList.innerHTML = '';
+                    data.forEach(sub => {
+                        subfolderList.innerHTML += `<div class='bg-white border border-gray-200 rounded-lg p-3 hover:shadow-md transition-shadow duration-150 flex items-center space-x-3 cursor-pointer' onclick='openSubfolderModal(${sub.id}, "${sub.name.replace(/'/g, "\\'")}")'>
+                            <span class='text-2xl'>📁</span>
+                            <div>
+                                <h4 class='font-medium text-[${'{{ $royalBlue }}'}]'>${sub.name}</h4>
+                                <p class='text-sm text-gray-500'>${sub.documents_count} files</p>
+                            </div>
+                        </div>`;
+                    });
+                });
+            // Load documents for this folder
+            const docList = document.getElementById('subfolderDocumentList');
+            docList.innerHTML = '<p class="text-gray-500">Loading...</p>';
+            fetch(`/documents/folder/${folderId}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.length === 0) {
+                        docList.innerHTML = '<p class="text-gray-500 text-center py-4">No documents uploaded yet.</p>';
+                        return;
+                    }
+                    docList.innerHTML = '';
+                    data.forEach(doc => {
+                        const statusColor = doc.status === 'approved' ? 'text-green-600 bg-green-50'
+                                        : doc.status === 'rejected' ? 'text-red-600 bg-red-50'
+                                        : 'text-yellow-600 bg-yellow-50';
+                        const rejectionNote = doc.rejection_reason ? `<p class="text-xs text-red-600 mt-1">Reason: ${doc.rejection_reason}</p>` : '';
+                        docList.innerHTML += `
+                            <div class="bg-white border border-gray-200 rounded-lg p-3 hover:shadow-md transition-shadow duration-150">
+                                <div class="flex justify-between items-start">
+                                    <div class="flex-1">
+                                        <p class="font-medium text-gray-900">${doc.title}</p>
+                                        <div class="flex items-center gap-2 mt-1">
+                                            <span class="text-xs text-gray-500">Type: ${doc.file_type || 'N/A'}</span>
+                                            <span class="text-xs px-2 py-0.5 rounded-full ${statusColor}">${doc.status}</span>
+                                        </div>
+                                            ${rejectionNote}
+                                    </div>
+                                </div>
+                            </div>`;
+                    });
+                });
+            modal.showModal();
+        }
+
         function showLoadingModal() {
             document.getElementById('loadingModal').classList.remove('hidden');
             document.getElementById('loadingModal').classList.add('flex');
@@ -394,4 +533,23 @@ $goldenBrown = '#b87a3d';
             background-color: rgba(0, 0, 0, 0.5);
         }
     </style>
+
+    @if(session('success'))
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Show the loading modal if not already visible
+            const loadingModal = document.getElementById('loadingModal');
+            loadingModal.classList.remove('hidden');
+            loadingModal.classList.add('flex');
+            // Update modal content to success
+            loadingModal.querySelector('h3').textContent = 'Area Repositories Successfully uploaded';
+            loadingModal.querySelector('p').textContent = @json(session('success'));
+            // Optionally, hide after a delay
+            setTimeout(() => {
+                loadingModal.classList.add('hidden');
+                loadingModal.classList.remove('flex');
+            }, 2500);
+        });
+    </script>
+    @endif
 </x-app-layout>

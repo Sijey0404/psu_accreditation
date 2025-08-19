@@ -40,7 +40,9 @@ class AppServiceProvider extends ServiceProvider
 
         // Make departments globally available in all views
         View::composer('*', function ($view) {
-            $departments = Department::orderBy('name')->get(); // Sorted alphabetically
+            $departments = \App\Models\Department::with([
+                'accreditationFolders.subtopics'
+            ])->orderBy('name')->get();
             $view->with('departments', $departments);
         });
     }

@@ -39,4 +39,25 @@ class DepartmentController extends Controller
         // Return a view with the department data
         return view('departments.show', compact('department'));
     }
+
+    public function edit($id)
+    {
+        $department = Department::findOrFail($id);
+        return view('departments.edit', compact('department'));
+    }
+
+    public function update(Request $request, $id)
+    {
+        $request->validate(['name' => 'required|string|max:255']);
+        $department = Department::findOrFail($id);
+        $department->update(['name' => $request->name]);
+        return redirect()->back()->with('success', 'Department updated successfully!');
+    }
+
+    public function destroy($id)
+    {
+        $department = Department::findOrFail($id);
+        $department->delete();
+        return redirect()->back()->with('success', 'Department deleted successfully!');
+    }
 }

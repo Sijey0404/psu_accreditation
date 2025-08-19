@@ -16,9 +16,11 @@ return new class extends Migration
             $table->unsignedBigInteger('subtopic_id');
             $table->string('name');
             $table->string('path')->nullable(); // Optional, for full path structure
+            $table->unsignedBigInteger('parent_id')->nullable();
             $table->timestamps();
         
             $table->foreign('subtopic_id')->references('id')->on('subtopics')->onDelete('cascade');
+            $table->foreign('parent_id')->references('id')->on('folders')->onDelete('cascade');
         });
         
     }
